@@ -1,0 +1,91 @@
+# ────────────────────────────────
+# Python
+# ────────────────────────────────
+# Byte-compiled Python files.
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pkl
+*.log
+
+# ────────────────────────────────
+# Virtual environments
+# ────────────────────────────────
+# Virtual environment directories and files.
+venv/
+.env/
+env/
+.venv/
+.env
+*.env
+
+# ────────────────────────────────
+# Poetry
+# ────────────────────────────────
+# The lock file should be committed to Git to ensure all developers use the same dependency versions.
+# poetry.lock
+# Ignore Poetry's cache directory, as it's not needed in the repository.
+.poetry/
+
+# ────────────────────────────────
+# IDE / Editor
+# ────────────────────────────────
+# Project-specific IDE files.
+.vscode/
+.idea/
+# Swap files from Vim or similar editors.
+*.swp
+# macOS temporary files.
+.DS_Store
+
+# ────────────────────────────────
+# Test / Coverage
+# ────────────────────────────────
+# Output files from testing and coverage tools.
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
+.cache/
+nosetests.xml
+coverage.xml
+
+# ────────────────────────────────
+# Build / Distribution
+# ────────────────────────────────
+# Build and distribution files.
+build/
+dist/
+*.egg-info/
+.eggs/
+MANIFEST
+*.manifest
+*.spec
+
+# ────────────────────────────────
+# Migrations / Databases
+# ────────────────────────────────
+# Database files, typically for local development.
+*.db
+*.sqlite3
+
+# ────────────────────────────────
+# Local / temp files
+# ────────────────────────────────
+# Various temporary and local backup files.
+*.tmp
+*.bak
+*.orig
+*.old
+
+# ────────────────────────────────
+# Logs / Uploads / Media
+# ────────────────────────────────
+# Directories for logs, user-uploaded files, and media.
+logs/
+uploads/
+media/
+temp/
+tmp/

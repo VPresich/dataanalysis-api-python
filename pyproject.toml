@@ -1,0 +1,29 @@
+[project]
+name = "dataanalysis-api-python"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "VAleksandrovaPresich",email = "valya.alexandrova.presich@gmail.com"}
+]
+
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.119.0,<0.120.0)",
+    "uvicorn (>=0.38.0,<0.39.0)",
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "sqlalchemy[asyncio] (>=2.0.44,<3.0.0)",
+    "pydantic[email] (>=2.12.3,<3.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "flake8 (>=7.3.0,<8.0.0)"
+]
+
+[[tool.poetry.packages]]
+include = "app"

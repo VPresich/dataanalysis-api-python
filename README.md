@@ -14,6 +14,9 @@ REST API для работы с данными на FastAPI и PostgreSQL (Supab
 ## Структура проекта
 
 app/
+├── __init_.py
+├── database.py
+├── init_server.py
 ├── main.py
 ├── routers/
 ├── controllers/

@@ -1,15 +1,18 @@
 import os
 import asyncio
 from dotenv import load_dotenv
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy import text
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import text
 
 
 # Load environment variables from .env
 load_dotenv()
 
+# Create declarative base for SQLAlchemy models
+Base = declarative_base()
 
 # Build DATABASE_URL from environment or use full URL if provided
 DATABASE_URL = os.getenv("DATABASE_URL") or (
@@ -17,10 +20,8 @@ DATABASE_URL = os.getenv("DATABASE_URL") or (
     f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
 )
 
-
 # Initialize async engine
 engine = create_async_engine(DATABASE_URL, echo=True)
-
 
 # Create session factory
 SessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
@@ -55,16 +56,10 @@ async def init_db(retries: int = 5, delay: int = 3) -> None:
                 raise e
 
 
-# Purpose:  Provide a database session to be used inside FastAPI routes.
-# Details:
-#   - Uses the session factory (SessionLocal) to create an async session.
-#   - Yields the session so that FastAPI can inject it into endpoints.
-#   - Automatically closes the session after the request completes.
+# Provides an async context manager for database sessions
+# Allows using "async with" to open and automatically close the session
 
-
+@asynccontextmanager
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Yield an async database session for dependency injection in FastAPI.
-    """
     async with SessionLocal() as session:
         yield session

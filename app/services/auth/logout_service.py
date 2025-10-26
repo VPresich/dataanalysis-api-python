@@ -1,7 +1,23 @@
-async def logout_service(user: dict):
+from sqlalchemy import update
+from app.database import get_db_session
+from app.models import User
+from uuid import UUID
+
+
+async def logout_service(user_id: str):
     """
-    Stub logout service.
-    In a real implementation, this would clear the user's token in the database.
+    Real logout service.
+    Clears the token for the given user in the database.
+    Steps:
+      1. Find the user by ID.
+      2. Set the token field to None.
+      3. Commit the transaction.
     """
-    # Here we would clear the token in DB or mark session as invalid.
-    return True
+    async with get_db_session() as session:
+        await session.execute(
+            update(User)
+            .where(User._id == UUID(user_id))
+            .values(token=None)
+        )
+        await session.commit()
+        return True

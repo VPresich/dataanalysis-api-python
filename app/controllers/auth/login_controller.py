@@ -1,17 +1,18 @@
 from fastapi.responses import JSONResponse
 from app.services.auth import login_service
-from app.utils import ctrl_wrapper
+from app.utils.ctrl_wrapper import ctrl_wrapper
 
 
 @ctrl_wrapper
 async def login_controller(request_data: dict):
     """
-    Controller for user login.
-    Calls the service and returns an old-backend-compatible response.
+    User login controller.
+    Returns JSON containing the authentication token and user data.
+
+    Steps:
+      1. Call the login service with request data.
+      2. Receive token and user info from the service.
+      3. Return a JSONResponse with status code 200.
     """
-    email = request_data.get("email", "").lower()
-    password = request_data.get("password")
-
-    result = await login_service(email, password)
-
+    result = await login_service(request_data)
     return JSONResponse(status_code=200, content=result)

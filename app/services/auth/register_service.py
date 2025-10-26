@@ -1,42 +1,79 @@
+import os
 import uuid
+import bcrypt
+import jwt
+from datetime import datetime, timedelta, timezone
+from fastapi import HTTPException
+from sqlalchemy import select
+from app.database import get_db_session
+from app.models import User, ThemeEnum
 from app.utils.constants import DEF_THEME, PATH_DEF_LIGHT_AVATAR
-from app.utils.fake_data import fake_users_db
 
 
-async def register_service(request_data: dict):
+async def register_service(data: dict):
     """
-    Stub registration service.
-    In a real implementation, this would:
-      - Hash the password
-      - Save the new user in the DB
-      - Create a token
-      - Initialize user theme and avatar
+    User registration service.
+
+    Steps:
+      1. Check if a user with the given email already exists.
+      2. Hash the user's password securely using bcrypt.
+      3. Create a new User record in the database.
+      4. Commit and refresh to get the database-generated _id.
+      5. Generate a JWT token for the user.
+      6. Update the user record with the token.
+      7. Return a JSON-compatible dictionary with token and user info.
     """
-    name = request_data.get("name")
-    email = request_data.get("email", "").lower()
-    password = request_data.get("password")
+    name = data.get("name")
+    email = data.get("email", "").lower()
+    password = data.get("password")
 
-    # Check if user already exists
-    if email in fake_users_db:
-        raise ValueError("Email already exists")
+    async with get_db_session() as session:
 
-    # Fake password hashing and token generation
-    token = f"fake-jwt-{uuid.uuid4()}"
-    fake_users_db[email] = {
-        "name": name,
-        "email": email,
-        "password": password,  # (real impl. should hash)
-        "avatarURL": PATH_DEF_LIGHT_AVATAR,
-        "theme": DEF_THEME,
-    }
+        # Check if email is already registered
+        result = await session.execute(select(User).where(User.email == email))
+        existing_user = result.scalar_one_or_none()
+        if existing_user:
+            raise HTTPException(status_code=409, detail="Email in use")
 
-    # Return response
-    return {
-        "token": token,
-        "user": {
-            "name": name,
-            "email": email,
-            "avatarURL": PATH_DEF_LIGHT_AVATAR,
-            "theme": DEF_THEME,
-        },
-    }
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+        # Create a new User object
+        new_user = User(
+            name=name,
+            email=email,
+            password=hashed_password,
+            avatar_url=PATH_DEF_LIGHT_AVATAR,
+            theme=ThemeEnum(DEF_THEME),  # Enum will map to PostgreSQL enum
+            verification_token=str(uuid.uuid4()),
+            verify=False
+        )
+        session.add(new_user)
+        await session.commit()
+        await session.refresh(new_user)
+
+        # Generate JWT token with expiration
+        expires_in = int(os.getenv("JWT_EXPIRES_IN", 86400))
+        expire_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+
+        token_payload = {
+            "id": str(new_user._id),
+            "exp": expire_at
+        }
+
+        user_token = jwt.encode(token_payload, os.getenv("JWT_SECRET"), algorithm="HS256")
+
+        # Update user record with token
+        new_user.token = user_token
+        await session.commit()
+
+        # Prepare response
+        return {
+            "token": user_token,
+            "user": {
+                "name": new_user.name,
+                "email": new_user.email,
+                "avatarURL": new_user.avatar_url,
+                "theme": new_user.theme.name
+            },
+        }

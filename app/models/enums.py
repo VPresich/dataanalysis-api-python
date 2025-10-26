@@ -7,10 +7,3 @@ class ThemeEnum(PyEnum):
     blue = "blue"
     pink = "pink"
     red = "red"
-
-
-class AppEnum(PyEnum):
-    teachers = "teachers"
-    nannies = "nannies"
-    psychologists = "psychologists"
-    dataanalysis = "dataanalysis"

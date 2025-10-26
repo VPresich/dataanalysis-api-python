@@ -10,6 +10,7 @@ class RegisterValidation(BaseModel):
     name: Annotated[str, Field(min_length=2, max_length=32)]
     email: EmailStr
     password: Annotated[str, Field(min_length=6)]
+    app: Optional[str] = "dataanalysis"
 
     @field_validator("name")
     def validate_name(cls, v):
@@ -28,6 +29,7 @@ class LoginValidation(BaseModel):
     model_config = ConfigDict(extra="forbid")
     email: EmailStr
     password: Annotated[str, Field(min_length=6)]
+    app: Optional[str] = "dataanalysis"
 
     @field_validator("email")
     def validate_email(cls, v):

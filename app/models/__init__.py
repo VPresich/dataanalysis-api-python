@@ -1,7 +1,7 @@
 from .user import User
-from .theme import Theme
 from .data_analysis import DataAnalysis
 from .source_data import SourceData
+from .enums import ThemeEnum
 
 
-__all__ = ["User", "Theme", "DataAnalysis", "SourceData"]
+__all__ = ["User", "DataAnalysis", "SourceData", "ThemeEnum"]

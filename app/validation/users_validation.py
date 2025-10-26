@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from typing import Optional
 from typing import Annotated
 from app.utils.constants import EMAIL_PATTERN, NAME_PATTERN, VALID_THEMES
@@ -6,6 +6,7 @@ import re
 
 
 class RegisterValidation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     name: Annotated[str, Field(min_length=2, max_length=32)]
     email: EmailStr
     password: Annotated[str, Field(min_length=6)]
@@ -24,6 +25,7 @@ class RegisterValidation(BaseModel):
 
 
 class LoginValidation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     email: EmailStr
     password: Annotated[str, Field(min_length=6)]
 

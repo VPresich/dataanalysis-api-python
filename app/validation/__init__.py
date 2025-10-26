@@ -1,4 +1,4 @@
-from .users_validation import RegisterValidation, LoginValidation
+from .users_validation import RegisterValidation, LoginValidation, ThemeValidation
 
 
-__all__ = ["RegisterValidation", "LoginValidation"]
+__all__ = ["RegisterValidation", "LoginValidation", "ThemeValidation"]

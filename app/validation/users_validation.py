@@ -64,6 +64,7 @@ class ProfileValidation(BaseModel):
 
 
 class ThemeValidation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     color: str
 
     @field_validator("color")

@@ -12,12 +12,6 @@ async def register(data: RegisterValidation):
     return await register_controller(data.model_dump())
 
 
-# @auth_router.post("/login")
-# async def login(request: Request):
-#     data = await request.json()
-#     return await login_controller(data)
-
-
 @auth_router.post("/login")
 async def login(data: LoginValidation):
     return await login_controller(data.model_dump())

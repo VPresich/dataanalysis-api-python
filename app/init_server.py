@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.middleware.logging_middleware import log_requests
-from app.middleware.cache_control import CacheControlMiddleware
+from app.middleware import log_requests
+from app.middleware import CacheControl
 from fastapi import HTTPException
 from app.exceptions import (
     CustomException,
@@ -9,6 +9,7 @@ from app.exceptions import (
     http_exception_handler,
     generic_exception_handler,
 )
+from app.routers import routers
 
 
 def init_server(lifespan=None) -> FastAPI:
@@ -28,15 +29,12 @@ def init_server(lifespan=None) -> FastAPI:
     )
 
     # Cache-Control middleware
-    app.add_middleware(CacheControlMiddleware)
+    app.add_middleware(CacheControl)
 
     # Logging middleware (runs before and after every request)
     app.middleware("http")(log_requests)
 
-    # Define a simple root endpoint
-    @app.get("/")
-    async def root():
-        return {"message": "Server is working"}
+    app.include_router(routers, prefix="/api")
 
     # Exception Handlers
     app.add_exception_handler(CustomException, custom_exception_handler)

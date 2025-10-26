@@ -2,7 +2,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request
 
 
-class CacheControlMiddleware(BaseHTTPMiddleware):
+class CacheControl(BaseHTTPMiddleware):
     """
     Middleware that disables client-side caching.
 

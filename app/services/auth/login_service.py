@@ -1,11 +1,9 @@
-import os
 import bcrypt
-import jwt
-from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from sqlalchemy import select
 from app.database import get_db_session
 from app.models import User
+from app.utils import generate_jwt
 
 
 async def login_service(request_data: dict):
@@ -38,11 +36,7 @@ async def login_service(request_data: dict):
             raise HTTPException(status_code=401, detail="Email or password is wrong")
 
         # Generate JWT token
-        expires_in = int(os.getenv("JWT_EXPIRES_IN", 86400))
-        expire_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
-
-        token_payload = {"id": str(user._id), "exp": expire_at}
-        user_token = jwt.encode(token_payload, os.getenv("JWT_SECRET"), algorithm="HS256")
+        user_token = generate_jwt(str(user._id))
 
         # Save token in user table
         user.token = user_token

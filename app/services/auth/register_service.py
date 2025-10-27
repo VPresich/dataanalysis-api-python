@@ -1,13 +1,11 @@
-import os
 import uuid
 import bcrypt
-import jwt
-from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from sqlalchemy import select
 from app.database import get_db_session
 from app.models import User, ThemeEnum
 from app.utils.constants import DEF_THEME, PATH_DEF_LIGHT_AVATAR
+from app.utils import generate_jwt
 
 
 async def register_service(data: dict):
@@ -53,15 +51,7 @@ async def register_service(data: dict):
         await session.refresh(new_user)
 
         # Generate JWT token with expiration
-        expires_in = int(os.getenv("JWT_EXPIRES_IN", 86400))
-        expire_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
-
-        token_payload = {
-            "id": str(new_user._id),
-            "exp": expire_at
-        }
-
-        user_token = jwt.encode(token_payload, os.getenv("JWT_SECRET"), algorithm="HS256")
+        user_token = generate_jwt(str(new_user._id))
 
         # Update user record with token
         new_user.token = user_token

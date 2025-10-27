@@ -21,10 +21,18 @@ DATABASE_URL = os.getenv("DATABASE_URL") or (
 )
 
 # Initialize async engine
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True,
+    future=True,
+)
 
 # Create session factory
-SessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 
 
 # Check that the connection to PostgreSQL works correctly.
@@ -61,5 +69,17 @@ async def init_db(retries: int = 5, delay: int = 3) -> None:
 
 @asynccontextmanager
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionLocal() as session:
-        yield session
+    """
+    Provides a transactional scope around a series of operations.
+    Usage:
+        async with get_db_session() as session:
+            ...
+    """
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()

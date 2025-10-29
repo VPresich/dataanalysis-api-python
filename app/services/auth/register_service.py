@@ -36,28 +36,37 @@ async def register_service(data: dict):
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
+        # -----------------------------
         # Create a new User object
+        # Store verification_token to enable email verification later
+        # -----------------------------
         new_user = User(
             name=name,
             email=email,
             password=hashed_password,
             avatar_url=PATH_DEF_LIGHT_AVATAR,
-            theme=ThemeEnum(DEF_THEME),  # Enum will map to PostgreSQL enum
-            verification_token=str(uuid.uuid4()),
-            verify=False
+            theme=ThemeEnum(DEF_THEME),  # default theme
+            verification_token=str(uuid.uuid4()),  # token for email verification
+            verify=False  # user not verified yet
         )
         session.add(new_user)
         await session.commit()
         await session.refresh(new_user)
 
-        # Generate JWT token with expiration
+        # -----------------------------
+        # Generate JWT token
+        # This token is stored in the user record (like MongoDB)
+        # -----------------------------
         user_token = generate_jwt(str(new_user._id))
-
-        # Update user record with token
         new_user.token = user_token
         await session.commit()
 
-        # Prepare response
+        # -----------------------------
+        # Optional: send verification email
+        # Example: await send_verification_email(email, new_user.verification_token)
+        # -----------------------------
+
+        # Prepare response for frontend
         return {
             "token": user_token,
             "user": {

@@ -1,3 +1,4 @@
+
 import os
 from fastapi.responses import RedirectResponse
 from urllib.parse import urlencode
@@ -7,10 +8,24 @@ from app.utils.ctrl_wrapper import ctrl_wrapper
 @ctrl_wrapper
 async def google_auth_controller():
     """
-    Controller for redirecting the user to the Google OAuth authorization page.
+    Google OAuth Controller for FastAPI.
+
+    This controller redirects the user to Google's OAuth 2.0 authorization page.
+    It constructs the URL with all required parameters including:
+      - client_id: Google application's client ID
+      - redirect_uri: backend endpoint to receive the authorization code
+      - scope: permissions requested (email and profile)
+      - response_type: 'code', so Google returns an authorization code
+      - access_type: 'offline', to allow issuing refresh tokens
+      - prompt: 'consent', to force showing consent screen every time
+
+    After successful authorization, Google will redirect the user back
+    to /auth/google-redirect with the authorization code.
     """
+    # Construct the redirect URI for Google to call after authorization
     redirect_uri = f"{os.getenv('BACKEND_BASE_URL')}/auth/google-redirect"
 
+    # Prepare query parameters for Google OAuth URL
     params = {
         "client_id": os.getenv("GOOGLE_CLIENT_ID"),
         "redirect_uri": redirect_uri,
@@ -20,5 +35,8 @@ async def google_auth_controller():
         "prompt": "consent",
     }
 
+    # Build the full Google OAuth URL
     google_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
+
+    # Redirect the user to Google's OAuth consent page
     return RedirectResponse(url=google_url)

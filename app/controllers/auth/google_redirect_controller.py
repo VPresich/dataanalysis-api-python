@@ -1,7 +1,7 @@
 import os
 from fastapi import Request, HTTPException
 from fastapi.responses import RedirectResponse
-from app.services.auth import get_google_tokens, get_google_userinfo, google_login_service
+from app.services.auth import get_google_tokens, get_google_user_info, google_login_service
 from app.utils.ctrl_wrapper import ctrl_wrapper
 
 
@@ -32,7 +32,7 @@ async def google_redirect_controller(request: Request):
             raise HTTPException(status_code=401, detail="No access token received from Google")
 
         # Getting user profile
-        userinfo = await get_google_userinfo(access_token)
+        userinfo = await get_google_user_info(access_token)
 
         # Pass data to service
         data_to_service = {"userinfo": userinfo, "tokens": tokens}

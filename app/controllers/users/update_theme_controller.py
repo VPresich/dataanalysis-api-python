@@ -1,7 +1,7 @@
 from fastapi.responses import JSONResponse
 from fastapi import HTTPException
 from app.utils.ctrl_wrapper import ctrl_wrapper
-from app.services.users.update_theme_service import update_theme_service
+from app.services.users import update_theme_service
 
 
 @ctrl_wrapper

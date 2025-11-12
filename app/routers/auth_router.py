@@ -7,7 +7,8 @@ from app.controllers.auth import (
     google_auth_controller,
     google_redirect_controller
 )
-from app.middleware import authenticate
+
+from app.dependencies import authenticate
 from app.validation import RegisterValidation, LoginValidation
 
 auth_router = APIRouter()

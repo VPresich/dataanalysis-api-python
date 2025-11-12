@@ -1,15 +1,13 @@
-import uuid
-from sqlalchemy import Column, String, Float, Integer, ForeignKey, DateTime, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, func
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class DataAnalysis(Base):
-    __tablename__ = "data_analysis"
+class Data(Base):
+    __tablename__ = "data"
 
-    _id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-
-    source_id = Column(UUID(as_uuid=True), ForeignKey("source_data._id", ondelete="CASCADE"), nullable=False)
+    _id = Column(Integer, primary_key=True, index=True)
+    id_source = Column(Integer, ForeignKey("data_sources._id", ondelete="CASCADE"), nullable=False)
 
     CVpositive = Column(String, default="None")
     CVstable = Column(String, default="None")
@@ -35,5 +33,8 @@ class DataAnalysis(Base):
     speed = Column(String, default="None")
     TrackNum = Column(Integer, default=0)
     Time = Column(Float, default=0.0)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    source = relationship("DataSource", back_populates="data")

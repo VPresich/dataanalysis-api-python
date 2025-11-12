@@ -5,7 +5,8 @@ from app.controllers.users import (
     update_theme_controller,
     get_theme_controller
 )
-from app.middleware import authenticate
+
+from app.dependencies import authenticate
 from app.validation import ThemeValidation
 
 

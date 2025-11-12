@@ -1,11 +1,15 @@
 import uuid
+import os
 import bcrypt
 from fastapi import HTTPException
 from sqlalchemy import select
 from app.database import get_db_session
 from app.models import User, ThemeEnum
-from app.utils.constants import DEF_THEME, PATH_DEF_LIGHT_AVATAR
+from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
+from .send_verification_token import send_verification_token
 from app.utils import generate_jwt
+
+REQUIRE_EMAIL_VERIFICATION = os.getenv("REQUIRE_EMAIL_VERIFICATION", "true").lower() == "true"
 
 
 async def register_service(data: dict):
@@ -36,43 +40,60 @@ async def register_service(data: dict):
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-        # -----------------------------
-        # Create a new User object
-        # Store verification_token to enable email verification later
-        # -----------------------------
+        verification_token = str(uuid.uuid4()) if REQUIRE_EMAIL_VERIFICATION else None
+        verify_status = not REQUIRE_EMAIL_VERIFICATION
+
         new_user = User(
             name=name,
             email=email,
             password=hashed_password,
-            avatar_url=PATH_DEF_LIGHT_AVATAR,
-            theme=ThemeEnum(DEF_THEME),  # default theme
-            verification_token=str(uuid.uuid4()),  # token for email verification
-            verify=False  # user not verified yet
+            avatar_url=PATH_DEF_AVATAR,
+            theme=ThemeEnum(DEF_THEME),
+            verification_token=verification_token,
+            verify=verify_status,
         )
+
         session.add(new_user)
         await session.commit()
         await session.refresh(new_user)
 
         # -----------------------------
-        # Generate JWT token
-        # This token is stored in the user record (like MongoDB)
+        # Optional: send verification email
+        if REQUIRE_EMAIL_VERIFICATION:
+            email_sent = False
+            try:
+                await send_verification_token(email, verification_token)
+                email_sent = True
+            except Exception as err:
+                print(f"Failed to send verification email: {err}")
+
+            result = {
+                "verifyRequired": True,
+                "user": {
+                    "name": new_user.name,
+                    "email": new_user.email,
+                },
+                "message": (
+                    "Verification email sent. Please check your inbox."
+                    if email_sent
+                    else "Verification email could not be sent. You may need to verify your email manually."
+                ),
+            }
+            return result
         # -----------------------------
+
+        # Generate JWT token
         user_token = generate_jwt(str(new_user._id))
         new_user.token = user_token
         await session.commit()
 
-        # -----------------------------
-        # Optional: send verification email
-        # Example: await send_verification_email(email, new_user.verification_token)
-        # -----------------------------
-
-        # Prepare response for frontend
-        return {
-            "token": user_token,
-            "user": {
-                "name": new_user.name,
-                "email": new_user.email,
-                "avatarURL": new_user.avatar_url,
-                "theme": new_user.theme.name
-            },
-        }
+    # Prepare response for frontend
+    return {
+        "token": user_token,
+        "user": {
+            "name": new_user.name,
+            "email": new_user.email,
+            "avatarURL": new_user.avatar_url,
+            "theme": new_user.theme.name
+        },
+    }

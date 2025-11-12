@@ -6,7 +6,7 @@ from sqlalchemy import select
 from app.database import get_db_session
 from app.utils import generate_jwt
 from fastapi import HTTPException
-from app.utils.constants import DEF_THEME, PATH_DEF_LIGHT_AVATAR
+from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
 
 
 async def google_login_service(data: dict) -> str:
@@ -41,8 +41,8 @@ async def google_login_service(data: dict) -> str:
                 name=userinfo.get("name", ""),
                 email=email,
                 password=hashed_password,
-                google_id=userinfo.get("id"),
-                avatar_url=PATH_DEF_LIGHT_AVATAR,
+                googleId=userinfo.get("id"),
+                avatar_url=PATH_DEF_AVATAR,
                 theme=ThemeEnum(DEF_THEME),
                 verification_token=str(uuid.uuid4()),
                 verify=False

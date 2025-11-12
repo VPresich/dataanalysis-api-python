@@ -45,7 +45,7 @@ async def authenticate(authorization: str = Header(None)):
                 "id": str(user._id),
                 "name": user.name,
                 "email": user.email,
-                "avatarURL": user.avatar_url,
+                "avatarUrl": user.avatar_url,
                 "theme": user.theme.name,
             }
 

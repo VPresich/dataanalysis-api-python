@@ -1,15 +1,10 @@
 import os
-from pathlib import Path
 from jinja2 import Template
 from fastapi import HTTPException
 from sqlalchemy import select
-
 from app.database import get_db_session
 from app.models import User
 from app.utils import send_mail, get_template_path
-
-
-TEMPLATES_DIR = Path(__file__).parent.parent.parent / "templates"
 
 
 async def send_verification_token(email: str, verification_token: str):

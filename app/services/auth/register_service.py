@@ -9,8 +9,6 @@ from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
 from .send_verification_token import send_verification_token
 from app.utils import generate_jwt
 
-REQUIRE_EMAIL_VERIFICATION = os.getenv("REQUIRE_EMAIL_VERIFICATION", "true").lower() == "true"
-
 
 async def register_service(data: dict):
     """
@@ -29,19 +27,21 @@ async def register_service(data: dict):
     email = data.get("email", "").lower()
     password = data.get("password")
 
+    require_email_verification = os.getenv("REQUIRE_EMAIL_VERIFICATION", "true").lower() == "true"
+
     async with get_db_session() as session:
 
         # Check if email is already registered
         result = await session.execute(select(User).where(User.email == email))
         existing_user = result.scalar_one_or_none()
         if existing_user:
-            raise HTTPException(status_code=409, detail="Email in use")
+            raise HTTPException(status_code=409, detail="Email is already in use. Please log in instead.")
 
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-        verification_token = str(uuid.uuid4()) if REQUIRE_EMAIL_VERIFICATION else None
-        verify_status = not REQUIRE_EMAIL_VERIFICATION
+        verification_token = str(uuid.uuid4()) if require_email_verification else None
+        verify_status = not require_email_verification
 
         new_user = User(
             name=name,
@@ -57,9 +57,8 @@ async def register_service(data: dict):
         await session.commit()
         await session.refresh(new_user)
 
-        # -----------------------------
         # Optional: send verification email
-        if REQUIRE_EMAIL_VERIFICATION:
+        if require_email_verification:
             email_sent = False
             try:
                 await send_verification_token(email, verification_token)
@@ -80,7 +79,6 @@ async def register_service(data: dict):
                 ),
             }
             return result
-        # -----------------------------
 
         # Generate JWT token
         user_token = generate_jwt(str(new_user._id))

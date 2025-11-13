@@ -10,24 +10,68 @@
     />
     <style>
       body {
-        font-family: 'Roboto', sans-serif;
+        font-family: "Roboto", sans-serif;
         line-height: 1.6;
+        background-color: #f5f5f5;
+        padding: 20px;
+        color: #333333;
       }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #222222;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 16px;
+        color: #555555;
+      }
+
       .btn {
         display: inline-block;
-        padding: 10px 20px;
-        background-color: #28a745;
-        color: white;
+        padding: 12px 24px;
+        background-color: #8a8a89;
+        color: #ffffff !important;
         text-decoration: none;
-        border-radius: 5px;
-        margin-top: 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        margin-top: 20px;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #737370;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #888888;
       }
     </style>
   </head>
 
   <body>
-    <h1>Hello, {{name}}!</h1>
-    <p>Welcome! Please click the button below to verify your email address:</p>
-    <a class="btn" href="{{link}}">Verify Email</a>
+    <div class="container">
+      <h1>Hello, {{name}}!</h1>
+      <p>
+        Welcome! Please click the button below to verify your email address and
+        activate your account:
+      </p>
+      <a class="btn" href="{{link}}">Verify Email</a>
+      <p class="footer">
+        If you did not create an account, please ignore this email.
+      </p>
+    </div>
   </body>
 </html>

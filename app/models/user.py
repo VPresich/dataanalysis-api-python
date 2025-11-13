@@ -16,7 +16,7 @@ class User(Base):
     avatar_url = Column(String, nullable=False)
     verify = Column(Boolean, default=False)
     verification_token = Column(String, nullable=False)
-    theme = Column(Enum(ThemeEnum, name="theme_enum"), nullable=False)
+    theme = Column(Enum(ThemeEnum, name="theme_enum"), nullable=True)
     google_id = Column(String, unique=True, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

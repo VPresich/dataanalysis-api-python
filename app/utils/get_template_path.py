@@ -1,6 +1,6 @@
 from pathlib import Path
 from app.utils.constants import TEMPLATES_DIR
-from app.exceptions.custom_exception import CustomException  # твой универсальный exception
+from app.exceptions.custom_exception import CustomException
 
 
 def get_template_path(template_name: str) -> Path:

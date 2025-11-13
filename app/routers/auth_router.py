@@ -5,11 +5,14 @@ from app.controllers.auth import (
     login_controller,
     logout_controller,
     google_auth_controller,
-    google_redirect_controller
+    google_redirect_controller,
+    verify_email_controller,
+    resend_verify_controller
+
 )
 
 from app.dependencies import authenticate
-from app.validation import RegisterValidation, LoginValidation
+from app.validation import RegisterValidation, LoginValidation, EmailValidation
 
 auth_router = APIRouter()
 
@@ -37,3 +40,13 @@ async def google_auth():
 @auth_router.get("/google-redirect")
 async def google_redirect(request: Request):
     return await google_redirect_controller(request)
+
+
+@auth_router.post("/resend-verify")
+async def resend_verify(data: EmailValidation):
+    return await resend_verify_controller(data.model_dump())
+
+
+@auth_router.get("/verify/{verification_token}")
+async def verify(verification_token: str):
+    return await verify_email_controller(verification_token)

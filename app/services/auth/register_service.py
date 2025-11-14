@@ -6,8 +6,8 @@ from sqlalchemy import select
 from app.database import get_db_session
 from app.models import User, ThemeEnum
 from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
-from .send_verification_token import send_verification_token
 from app.utils import generate_jwt
+from app.services.auth.send_token import send_token
 
 
 async def register_service(data: dict):
@@ -61,7 +61,9 @@ async def register_service(data: dict):
         if require_email_verification:
             email_sent = False
             try:
-                await send_verification_token(email, verification_token)
+                backend_base_url = os.getenv("BACKEND_BASE_URL")
+                redirect = f"{backend_base_url}/auth/verify/{verification_token}"
+                await send_token(email.lower(), "Verification email", redirect, "verification_email.html")
                 email_sent = True
             except Exception as err:
                 print(f"Failed to send verification email: {err}")

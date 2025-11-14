@@ -7,8 +7,8 @@ from app.controllers.auth import (
     google_auth_controller,
     google_redirect_controller,
     verify_email_controller,
-    resend_verify_controller
-
+    resend_verify_controller,
+    request_reset_pwd_controller,
 )
 
 from app.dependencies import authenticate
@@ -40,6 +40,11 @@ async def google_auth():
 @auth_router.get("/google-redirect")
 async def google_redirect(request: Request):
     return await google_redirect_controller(request)
+
+
+@auth_router.post("/request-reset-pwd")
+async def request_reset_pwd(data: EmailValidation):
+    return await request_reset_pwd_controller(data.model_dump())
 
 
 @auth_router.post("/resend-verify")

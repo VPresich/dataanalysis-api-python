@@ -8,5 +8,5 @@ __all__ = [
     "ctrl_wrapper",
     "generate_jwt",
     "send_mail",
-    "get_template_path"
+    "get_template_path",
 ]

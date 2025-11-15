@@ -9,10 +9,15 @@ from app.controllers.auth import (
     verify_email_controller,
     resend_verify_controller,
     request_reset_pwd_controller,
+    reset_pwd_controller
 )
 
 from app.dependencies import authenticate
-from app.validation import RegisterValidation, LoginValidation, EmailValidation
+from app.validation import (
+    RegisterValidation,
+    LoginValidation,
+    EmailValidation,
+    ResetPasswordValidation)
 
 auth_router = APIRouter()
 
@@ -45,6 +50,11 @@ async def google_redirect(request: Request):
 @auth_router.post("/request-reset-pwd")
 async def request_reset_pwd(data: EmailValidation):
     return await request_reset_pwd_controller(data.model_dump())
+
+
+@auth_router.post("/reset-pwd")
+async def reset_pwd(data: ResetPasswordValidation):
+    return await reset_pwd_controller(data.model_dump())
 
 
 @auth_router.post("/resend-verify")

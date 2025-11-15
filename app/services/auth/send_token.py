@@ -6,7 +6,7 @@ from app.models import User
 from app.utils import send_mail, get_template_path
 
 
-async def send_token(email: str, subject_email: str, redirect: str, htmlFileName: str):
+async def send_token(email: str, subject_email: str, redirect: str, template_name: str):
     """
     Send a verification email with a verification token via Brevo (using SQLAlchemy).
     The controller knows nothing about database sessions — the service manages them internally.
@@ -20,7 +20,7 @@ async def send_token(email: str, subject_email: str, redirect: str, htmlFileName
             raise HTTPException(status_code=404, detail="User not found")
 
         # Check if the email template exists
-        template_path = get_template_path(htmlFileName)
+        template_path = get_template_path(template_name)
 
         # Load and compile the template
         template_source = template_path.read_text(encoding="utf-8")

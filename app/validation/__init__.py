@@ -1,5 +1,10 @@
 from .users_validation import ThemeValidation, ProfileValidation
-from .auth_validation import RegisterValidation, LoginValidation, EmailValidation
+from .auth_validation import (
+    RegisterValidation,
+    LoginValidation,
+    EmailValidation,
+    ResetPasswordValidation
+)
 
 
 __all__ = [
@@ -7,5 +12,6 @@ __all__ = [
     "LoginValidation",
     "ThemeValidation",
     "EmailValidation",
-    "ProfileValidation"
+    "ProfileValidation",
+    "ResetPasswordValidation"
 ]

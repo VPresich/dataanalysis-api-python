@@ -7,6 +7,7 @@ from .get_google_user_info import get_google_user_info
 from .verify_email_service import verify_email_service
 from .resend_verify_service import resend_verify_service
 from .request_reset_pwd_service import request_reset_pwd_service
+from .reset_pwd_service import reset_pwd_service
 
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "get_google_user_info",
     "verify_email_service",
     "resend_verify_service",
-    "request_reset_pwd_service"
+    "request_reset_pwd_service",
+    "reset_pwd_service"
 ]

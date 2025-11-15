@@ -9,9 +9,11 @@ from app.utils import generate_jwt
 
 async def request_reset_pwd_service(email: str):
     """
-    Resend a verification email to an unverified user.
-    If user is already verified, raise 400.
-    If user not found, raise 404.    """
+    Sends a password reset email to the user.
+    Raises 404 if user not found.
+    The JWT token will include email only if provided.
+    """
+    require_email_verification = os.getenv("REQUIRE_EMAIL_VERIFICATION", "true").lower() == "true"
 
     async with get_db_session() as session:
         result = await session.execute(select(User).where(User.email == email.lower()))
@@ -20,10 +22,12 @@ async def request_reset_pwd_service(email: str):
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        resetToken = generate_jwt(user._id, 15)
+        if require_email_verification and not user.verify:
+            raise HTTPException(status_code=403, detail="Please verify your email before reset password.")
 
-        await session.commit()
-        backend_base_url = os.getenv("BACKEND_BASE_URL")
-        redirect = f"{backend_base_url}password/reset/{resetToken}"
+        reset_token = generate_jwt(user._id, expires_in=15 * 60, email=user.email)
 
-        return await send_token(email.lower(), "Reset your password", redirect, "reset_password_email.html")
+        backend_base_url = os.getenv("FRONTEND_BASE_URL")
+        reset_link = f"{backend_base_url}password/reset/{reset_token}"
+
+        await send_token(user.email.lower(), "Reset your password", reset_link, "reset_password_email.html")

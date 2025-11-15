@@ -47,3 +47,9 @@ class EmailValidation(BaseModel):
         if not re.match(EMAIL_PATTERN, v):
             raise ValueError(f"Invalid email format: {v}")
         return v
+
+
+class ResetPasswordValidation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    password: Annotated[str, Field(min_length=6)]
+    token: str

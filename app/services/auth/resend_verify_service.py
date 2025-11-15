@@ -26,10 +26,7 @@ async def resend_verify_service(email: str):
 
         verification_token = user.verification_token or str(uuid.uuid4())
         user.verification_token = verification_token
-
         await session.commit()
-
-        # await send_verification_token(email.lower(), verification_token)
 
         backend_base_url = os.getenv("BACKEND_BASE_URL")
         redirect = f"{backend_base_url}/auth/verify/{verification_token}"

@@ -6,9 +6,10 @@ from app.controllers.users import (
     get_theme_controller,
     get_avatar_url_controller,
     update_info_controller,
-    update_profile_controller
+    update_profile_controller,
+    update_avatar_controller
 )
-from app.dependencies import authenticate
+from app.dependencies import authenticate, upload_file
 from app.validation import ThemeValidation, ProfileValidation
 
 
@@ -43,3 +44,10 @@ async def update_themes(data: ThemeValidation, current_user: dict = Depends(auth
 @users_router.get("/avatars")
 async def get_avatar_url(current_user: dict = Depends(authenticate)):
     return await get_avatar_url_controller(current_user)
+
+
+@users_router.patch("/avatars")
+async def update_avatar(current_user: dict = Depends(authenticate), file_path: str = Depends(upload_file("avatar"))):
+    return await update_avatar_controller(current_user, file_path)
+
+# file_path: Optional[str] = Depends(upload_file("profile_picture", required=False))

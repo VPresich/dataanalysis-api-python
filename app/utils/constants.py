@@ -7,3 +7,6 @@ DEF_THEME = "default"
 
 PATH_DEF_LIGHT_AVATAR = "https://res.cloudinary.com/dirtbd4yk/image/upload/v1717687717/def-avatar-light_1x_fkwy6u.jpg"
 PATH_DEF_AVATAR = "https://res.cloudinary.com/dirtbd4yk/image/upload/v1737918124/defaultUser_ddbbfk.png"
+
+MAX_FILE_SIZE = 5 * 1024 * 1024
+AVATAR_SIZE = 68

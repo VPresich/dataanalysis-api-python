@@ -1,8 +1,8 @@
-
-import os
 from fastapi.responses import RedirectResponse
 from urllib.parse import urlencode
 from app.utils.ctrl_wrapper import ctrl_wrapper
+from app.config.urls import BACKEND_BASE_URL
+from app.config.google import GOOGLE_CLIENT_ID
 
 
 @ctrl_wrapper
@@ -23,11 +23,11 @@ async def google_auth_controller():
     to /auth/google-redirect with the authorization code.
     """
     # Construct the redirect URI for Google to call after authorization
-    redirect_uri = f"{os.getenv('BACKEND_BASE_URL')}/auth/google-redirect"
+    redirect_uri = f"{BACKEND_BASE_URL}/auth/google-redirect"
 
     # Prepare query parameters for Google OAuth URL
     params = {
-        "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+        "client_id": GOOGLE_CLIENT_ID,
         "redirect_uri": redirect_uri,
         "scope": "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
         "response_type": "code",

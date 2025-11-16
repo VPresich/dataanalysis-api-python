@@ -1,10 +1,10 @@
-import os
 import bcrypt
 import jwt
 from fastapi import HTTPException
 from sqlalchemy import select, update
 from app.database import get_db_session
 from app.models import User
+from app.config.jwt import JWT_SECRET
 
 
 async def reset_pwd_service(password: str, token: str):
@@ -16,7 +16,7 @@ async def reset_pwd_service(password: str, token: str):
     :raises HTTPException: 401 if token invalid, 404 if user not found
     """
     try:
-        payload = jwt.decode(token, os.getenv("JWT_SECRET"), algorithms=["HS256"])
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         user_id = payload.get("id")
         email = payload.get("email")
     except jwt.ExpiredSignatureError:

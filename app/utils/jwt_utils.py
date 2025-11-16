@@ -1,6 +1,6 @@
-import os
 from datetime import datetime, timedelta, timezone
 import jwt
+from app.config.jwt import JWT_EXPIRES_IN, JWT_SECRET
 
 
 def generate_jwt(user_id: str, expires_in: int = None, email: str | None = None) -> str:
@@ -14,7 +14,7 @@ def generate_jwt(user_id: str, expires_in: int = None, email: str | None = None)
     :return: JWT token (str)
     """
     if expires_in is None:
-        expires_in = int(os.getenv("JWT_EXPIRES_IN", 86400))
+        expires_in = JWT_EXPIRES_IN
 
     expire_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
 
@@ -23,5 +23,5 @@ def generate_jwt(user_id: str, expires_in: int = None, email: str | None = None)
     if email:
         payload["email"] = email
 
-    token = jwt.encode(payload, os.getenv("JWT_SECRET"), algorithm="HS256")
+    token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
     return token

@@ -1,0 +1,6 @@
+import os
+
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL")
+
+__all__ = ("FRONTEND_BASE_URL", "BACKEND_BASE_URL")

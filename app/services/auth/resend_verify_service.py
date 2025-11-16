@@ -1,10 +1,10 @@
-import os
 import uuid
 from fastapi import HTTPException
 from sqlalchemy import select
 from app.database import get_db_session
 from app.models import User
 from .send_token import send_token
+from app.config.urls import BACKEND_BASE_URL
 
 
 async def resend_verify_service(email: str):
@@ -28,7 +28,6 @@ async def resend_verify_service(email: str):
         user.verification_token = verification_token
         await session.commit()
 
-        backend_base_url = os.getenv("BACKEND_BASE_URL")
-        redirect = f"{backend_base_url}/auth/verify/{verification_token}"
+        redirect = f"{BACKEND_BASE_URL}/auth/verify/{verification_token}"
 
         return await send_token(email.lower(), "Verification email", redirect, "verification_email.html")

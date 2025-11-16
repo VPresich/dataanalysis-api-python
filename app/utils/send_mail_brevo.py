@@ -1,8 +1,5 @@
 import httpx
-import os
-
-SMTP_FROM = os.getenv("SMTP_FROM")
-SMTP_APIKEY = os.getenv("SMTP_APIKEY")
+from app.config.mail import SMTP_APIKEY, SMTP_FROM
 
 
 async def send_mail(to: str, subject: str, html: str):

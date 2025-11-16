@@ -1,10 +1,10 @@
 import bcrypt
-import os
 from fastapi import HTTPException
 from sqlalchemy import select
 from app.database import get_db_session
 from app.models import User
 from app.utils import generate_jwt
+from app.config.flags import REQUIRE_EMAIL_VERIFICATION
 
 
 async def login_service(request_data: dict):
@@ -22,8 +22,6 @@ async def login_service(request_data: dict):
     email = request_data.get("email", "").lower()
     password = request_data.get("password")
 
-    require_email_verification = os.getenv("REQUIRE_EMAIL_VERIFICATION", "true").lower() == "true"
-
     async with get_db_session() as session:
         result = await session.execute(select(User).where(User.email == email))
         user = result.scalar_one_or_none()
@@ -31,7 +29,7 @@ async def login_service(request_data: dict):
         if not user:
             raise HTTPException(status_code=401, detail="Email or password is wrong")
 
-        if require_email_verification and not user.verify:
+        if REQUIRE_EMAIL_VERIFICATION and not user.verify:
             raise HTTPException(status_code=403, detail="Please verify your email before logging in.")
 
         if not bcrypt.checkpw(password.encode(), user.password.encode()):

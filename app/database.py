@@ -1,24 +1,13 @@
-import os
 import asyncio
-from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import text
-
-
-# Load environment variables from .env
-load_dotenv()
+from app.config.db import DATABASE_URL
 
 # Create declarative base for SQLAlchemy models
 Base = declarative_base()
-
-# Build DATABASE_URL from environment or use full URL if provided
-DATABASE_URL = os.getenv("DATABASE_URL") or (
-    f"postgresql+asyncpg://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
-    f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
-)
 
 # Initialize async engine
 engine = create_async_engine(
@@ -46,7 +35,7 @@ async def init_db(retries: int = 5, delay: int = 3) -> None:
             async with engine.connect() as conn:
                 await conn.execute(text("SELECT 1"))
                 print(
-                    "\033[92m✅ PostgreSQL connection successfully established!\033[0m"
+                    "\033[92m PostgreSQL connection successfully established!\033[0m"
                 )
                 return
         except Exception as e:
@@ -55,7 +44,7 @@ async def init_db(retries: int = 5, delay: int = 3) -> None:
                 e,
             )
             if attempt < retries:
-                print(f"🔁 Retrying in {delay} seconds...")
+                print(f" Retrying in {delay} seconds...")
                 await asyncio.sleep(delay)
             else:
                 print(

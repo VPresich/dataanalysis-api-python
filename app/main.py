@@ -1,7 +1,7 @@
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
-from app import init_server, init_db
 import uvicorn
+from app import init_server, init_db
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 
 
 @asynccontextmanager

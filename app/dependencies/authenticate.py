@@ -1,10 +1,10 @@
-import os
 from uuid import UUID
 import jwt
 from fastapi import Header, HTTPException
 from sqlalchemy import select
 from app.database import get_db_session
 from app.models import User
+from app.config.jwt import JWT_SECRET
 
 
 async def authenticate(authorization: str = Header(None)):
@@ -27,7 +27,7 @@ async def authenticate(authorization: str = Header(None)):
             raise HTTPException(status_code=401, detail="Invalid token type")
 
         # Verify JWT and check expiration
-        payload = jwt.decode(token, os.getenv("JWT_SECRET"), algorithms=["HS256"])
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         user_id = payload.get("id")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token payload")

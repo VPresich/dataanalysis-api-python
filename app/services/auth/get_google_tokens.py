@@ -1,6 +1,6 @@
 import httpx
-import os
 from fastapi import HTTPException
+from app.config.google import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 
 
 async def get_google_tokens(code: str, redirect_uri: str):
@@ -23,8 +23,8 @@ async def get_google_tokens(code: str, redirect_uri: str):
         response = await client.post(
             "https://oauth2.googleapis.com/token",
             data={
-                "client_id": os.getenv("GOOGLE_CLIENT_ID"),
-                "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
                 "code": code,
                 "grant_type": "authorization_code",
                 "redirect_uri": redirect_uri,

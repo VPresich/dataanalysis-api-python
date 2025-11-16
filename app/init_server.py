@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.middleware import log_requests
@@ -10,6 +11,8 @@ from app.exceptions import (
     generic_exception_handler,
 )
 from app.routers import routers
+from fastapi.staticfiles import StaticFiles
+from app.config.paths import UPLOAD_DIR, TEMP_UPLOAD_DIR
 
 
 def init_server(lifespan=None) -> FastAPI:
@@ -30,6 +33,11 @@ def init_server(lifespan=None) -> FastAPI:
 
     # Cache-Control middleware
     app.add_middleware(CacheControl)
+
+    # Create folders for upload files
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    os.makedirs(TEMP_UPLOAD_DIR, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
     # Logging middleware (runs before and after every request)
     app.middleware("http")(log_requests)

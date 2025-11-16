@@ -1,5 +1,4 @@
 import uuid
-import os
 import bcrypt
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -8,6 +7,8 @@ from app.models import User, ThemeEnum
 from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
 from app.utils import generate_jwt
 from app.services.auth.send_token import send_token
+from app.config.flags import REQUIRE_EMAIL_VERIFICATION
+from app.config.urls import BACKEND_BASE_URL
 
 
 async def register_service(data: dict):
@@ -27,8 +28,6 @@ async def register_service(data: dict):
     email = data.get("email", "").lower()
     password = data.get("password")
 
-    require_email_verification = os.getenv("REQUIRE_EMAIL_VERIFICATION", "true").lower() == "true"
-
     async with get_db_session() as session:
 
         # Check if email is already registered
@@ -40,8 +39,8 @@ async def register_service(data: dict):
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-        verification_token = str(uuid.uuid4()) if require_email_verification else None
-        verify_status = not require_email_verification
+        verification_token = str(uuid.uuid4()) if REQUIRE_EMAIL_VERIFICATION else None
+        verify_status = not REQUIRE_EMAIL_VERIFICATION
 
         new_user = User(
             name=name,
@@ -58,11 +57,10 @@ async def register_service(data: dict):
         await session.refresh(new_user)
 
         # Optional: send verification email
-        if require_email_verification:
+        if REQUIRE_EMAIL_VERIFICATION:
             email_sent = False
             try:
-                backend_base_url = os.getenv("BACKEND_BASE_URL")
-                redirect = f"{backend_base_url}/auth/verify/{verification_token}"
+                redirect = f"{BACKEND_BASE_URL}/auth/verify/{verification_token}"
                 await send_token(email.lower(), "Verification email", redirect, "verification_email.html")
                 email_sent = True
             except Exception as err:

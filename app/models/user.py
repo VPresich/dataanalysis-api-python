@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, Boolean, Enum, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from app.database import Base
 from .enums import ThemeEnum
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -21,3 +22,5 @@ class User(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    data_sources = relationship("DataSource", back_populates="user")

@@ -16,7 +16,9 @@ def upload_file(field_name: str, required: bool = True):
     default = ... if required else None
 
     async def _upload_file(file: Optional[UploadFile] = File(default, description="Upload file", alias=field_name)) -> Optional[str]:
-        if not file:
+        if not file or not file.filename:
+            if required:
+                raise HTTPException(status_code=400, detail=f'File "{field_name}" is required')
             return None
 
         contents = await file.read()

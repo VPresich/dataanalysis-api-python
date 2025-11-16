@@ -1,5 +1,6 @@
 # users_router.py
 from fastapi import APIRouter, Depends
+from typing import Optional
 from app.controllers.users import (
     get_current_controller,
     update_theme_controller,
@@ -9,7 +10,7 @@ from app.controllers.users import (
     update_profile_controller,
     update_avatar_controller
 )
-from app.dependencies import authenticate, upload_file
+from app.dependencies import authenticate, upload_file, profile_form
 from app.validation import ThemeValidation, ProfileValidation
 
 
@@ -22,13 +23,16 @@ async def current(current_user: dict = Depends(authenticate)):
 
 
 @users_router.patch("/")
-async def update_info(data: ProfileValidation, current_user: dict = Depends(authenticate)):
+async def update_info(data: ProfileValidation,
+                      current_user: dict = Depends(authenticate)):
     return await update_info_controller(current_user, data.model_dump())
 
 
 @users_router.patch("/profile")
-async def update_profile(data: ProfileValidation, current_user: dict = Depends(authenticate)):
-    return await update_profile_controller(current_user, data.model_dump())
+async def update_profile(data: ProfileValidation = Depends(profile_form),
+                         current_user: dict = Depends(authenticate),
+                         file_path: Optional[str] = Depends(upload_file("avatar", required=False))):
+    return await update_profile_controller(current_user, data.model_dump(), file_path)
 
 
 @users_router.get("/themes")

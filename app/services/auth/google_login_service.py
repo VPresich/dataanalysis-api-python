@@ -1,4 +1,3 @@
-import uuid
 import secrets
 import bcrypt
 from app.models import User, ThemeEnum
@@ -15,7 +14,6 @@ async def google_login_service(data: dict) -> str:
     - Saves or updates user in DB
     - Generates and stores JWT token
     """
-
     userinfo = data.get("userinfo", {})
     if not userinfo:
         raise HTTPException(status_code=400, detail="Google user information is missing")
@@ -25,31 +23,40 @@ async def google_login_service(data: dict) -> str:
         raise HTTPException(status_code=400, detail="Email is required")
 
     async with get_db_session() as session:
-        result = await session.execute(select(User).where(User.email == email))
+        result = await session.execute(select(User).where(User.google_id == userinfo.get("id")))
         user = result.scalar_one_or_none()
 
-        if user:
-            # Update existing user
-            user.name = userinfo.get("name", user.name)
-            user.google_id = userinfo.get("id", user.google_id)
-        else:
-            # Create a new user with a random secure password
-            random_password = secrets.token_urlsafe(16)
-            hashed_password = bcrypt.hashpw(random_password.encode(), bcrypt.gensalt()).decode()
+        if not user:
+            # Check by email
+            result = await session.execute(select(User).where(User.email == email))
+            user = result.scalar_one_or_none()
 
-            user = User(
-                name=userinfo.get("name", ""),
-                email=email,
-                password=hashed_password,
-                googleId=userinfo.get("id"),
-                avatar_url=PATH_DEF_AVATAR,
-                theme=ThemeEnum(DEF_THEME),
-                verification_token=str(uuid.uuid4()),
-                verify=False
-            )
-            session.add(user)
-            await session.commit()
-            await session.refresh(user)
+            if user:
+                # Link Google ID if not linked
+                if not user.google_id:
+                    user.google_id = userinfo.get("id")
+                    if not user.verify:
+                        user.verify = True
+                        user.verification_token = None
+                    await session.commit()
+            else:
+                # Create new user
+                random_password = secrets.token_urlsafe(16)
+                hashed_password = bcrypt.hashpw(random_password.encode(), bcrypt.gensalt()).decode()
+
+                user = User(
+                    name=userinfo.get("name", ""),
+                    email=email,
+                    password=hashed_password,
+                    google_id=userinfo.get("id"),
+                    avatar_url=PATH_DEF_AVATAR,
+                    theme=ThemeEnum(DEF_THEME),
+                    verification_token=None,
+                    verify=True,
+                )
+                session.add(user)
+                await session.commit()
+                await session.refresh(user)
 
         # Generate and assign JWT token
         jwt_token = generate_jwt(str(user._id))

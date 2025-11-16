@@ -4,6 +4,7 @@ from .get_avatar_url_service import get_avatar_url_service
 from .update_info_service import update_info_service
 from .update_profile_service import update_profile_service
 from .update_avatar_service import update_avatar_service
+from .get_current_service import get_current_service
 
 
 __all__ = [
@@ -12,5 +13,6 @@ __all__ = [
     "get_avatar_url_service",
     "update_info_service",
     "update_profile_service",
-    "update_avatar_service"
+    "update_avatar_service",
+    "get_current_service"
 ]

@@ -23,3 +23,4 @@ class DataSource(Base):
     )
 
     user = relationship("User", back_populates="data_sources")
+    records = relationship("Data", back_populates="source", cascade="all, delete-orphan")

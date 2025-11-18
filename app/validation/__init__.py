@@ -6,6 +6,12 @@ from .auth_validation import (
     ResetPasswordValidation
 )
 
+from .data_sources_validation import (
+    DataSourceValidation,
+    SourceNumberValidation,
+    SourceUpdateValidation
+)
+
 
 __all__ = [
     "RegisterValidation",
@@ -13,5 +19,8 @@ __all__ = [
     "ThemeValidation",
     "EmailValidation",
     "ProfileValidation",
-    "ResetPasswordValidation"
+    "ResetPasswordValidation",
+    "DataSourceValidation",
+    "SourceNumberValidation",
+    "SourceUpdateValidation"
 ]

@@ -32,39 +32,38 @@ app/
 │
 ├── controllers/
 │   ├── __init__.py
-│   ├──auth/
+│   ├── auth/
 │   │   ├── __init__.py
 │   │   ├── register_controller.py
 │   │   ├── login_controller.py
 │   │   ├── logout_controller.py
 │   │   ├── get_google_tokens_controller.py
 │   │   ├── google_login_controller.py
-│   │   └── ....  .py
-│   ├──users/
-│   │    ├──__init__.py
-│   │    ├── get_current_controller.py
-│   │    ├── update_profile_controller.py
-│   │    ├── update_theme_controller.py
-│   │    ├── update_avatar_controller.py
-│   │    └── .... .py
-│   ├──sources/
-│   │    ├──__init__.py
-│   │    ├── get_all_sources_controller.py
-│   │    ├── delete_all_sources_controller.py
-│   │    ├── update_source_controller.py
-│   │    ├── upload_source_controller.py
-│   │    └── ...  .py
+│   │   └── ... .py
+│   ├── users/
+│   │   ├── __init__.py
+│   │   ├── get_current_controller.py
+│   │   ├── update_profile_controller.py
+│   │   ├── update_theme_controller.py
+│   │   ├── update_avatar_controller.py
+│   │   └── ... .py
+│   ├── sources/
+│   │   ├── __init__.py
+│   │   ├── get_all_sources_controller.py
+│   │   ├── delete_all_sources_controller.py
+│   │   ├── update_source_controller.py
+│   │   ├── upload_source_controller.py
+│   │   └── ... .py
 │   └── data/
-│        ├──__init__.py
-│        ├── get_data_by_source_controller.py
-│        ├── get_filtered_data_by_source_controller.py
-│        └── ... .py
+│       ├── __init__.py
+│       ├── get_data_by_source_controller.py
+│       ├── get_filtered_data_by_source_controller.py
+│       └── ... .py
 │
 ├── dependencies/
-│        ├──__init__.py
-│        ├── authenticate.py
-│        ├── .py
-│        └── ... .py
+│   ├── __init__.py
+│   ├── authenticate.py
+│   └── ... .py
 │
 ├── middlewares/
 │
@@ -77,7 +76,7 @@ app/
 │
 ├── services/
 │   ├── __init__.py
-│   ├──auth/
+│   ├── auth/
 │   │   ├── __init__.py
 │   │   ├── register_service.py
 │   │   ├── login_service.py
@@ -85,26 +84,26 @@ app/
 │   │   ├── get_google_tokens.py
 │   │   ├── get_google_user_info.py
 │   │   ├── google_login_service.py
-│   │   └── ....  .py
-│   ├──users/
-│   │    ├──__init__.py
-│   │    ├── get_current_service.py
-│   │    ├── update_profile_service.py
-│   │    ├── update_theme_service.py
-│   │    ├── update_avatar_service.py
-│   │    └── .... .py
-│   ├──sources/
-│   │    ├──__init__.py
-│   │    ├── get_all_sources_service.py
-│   │    ├── delete_all_sources_service.py
-│   │    ├── update_source_service.py
-│   │    ├── eupload_source_service.py
-│   │    └── ... .py
+│   │   └── ... .py
+│   ├── users/
+│   │   ├── __init__.py
+│   │   ├── get_current_service.py
+│   │   ├── update_profile_service.py
+│   │   ├── update_theme_service.py
+│   │   ├── update_avatar_service.py
+│   │   └── ... .py
+│   ├── sources/
+│   │   ├── __init__.py
+│   │   ├── get_all_sources_service.py
+│   │   ├── delete_all_sources_service.py
+│   │   ├── update_source_service.py
+│   │   ├── upload_source_service.py
+│   │   └── ... .py
 │   └── data/
-│        ├──__init__.py
-│        ├── get_data_by_source_service.py
-│        ├── get_filtered_data_by_source_service.py
-│        └── ... .py
+│       ├── __init__.py
+│       ├── get_data_by_source_service.py
+│       ├── get_filtered_data_by_source_service.py
+│       └── ... .py
 │
 ├── routers/
 │   ├── __init__.py
@@ -120,11 +119,18 @@ app/
 │   ├── source_validation.py
 │   └── ... .py
 │
-└── utils/
+├── schemas/
+│   ├── __init__.py
+│   └── data_source_schema.py
+│
+├── utils/
+│   └── ... .py
+│
 pyproject.toml
 poetry.lock
 .env
 .env.example
+
 
 1. Install dependencies:
 poetry install

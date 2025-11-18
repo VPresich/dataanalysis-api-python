@@ -1,4 +1,3 @@
-# users_router.py
 from fastapi import APIRouter, Depends
 from typing import Optional
 from app.controllers.users import (
@@ -53,5 +52,3 @@ async def get_avatar_url(current_user: dict = Depends(authenticate)):
 @users_router.patch("/avatars")
 async def update_avatar(current_user: dict = Depends(authenticate), file_path: str = Depends(upload_file("avatar"))):
     return await update_avatar_controller(current_user, file_path)
-
-# file_path: Optional[str] = Depends(upload_file("profile_picture", required=False))

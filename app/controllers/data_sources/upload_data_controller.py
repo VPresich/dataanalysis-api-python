@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from app.utils.ctrl_wrapper import ctrl_wrapper
 from app.services.data_sources import upload_data_service
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 
 @ctrl_wrapper
@@ -23,4 +25,7 @@ async def upload_data_controller(user: dict, data: dict, file_path: str):
         file_path=file_path
     )
 
-    return result
+    return JSONResponse(
+        status_code=201,
+        content=jsonable_encoder(result)
+    )

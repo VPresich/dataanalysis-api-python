@@ -17,6 +17,6 @@ class SourceNumberValidation(BaseModel):
 
 
 class SourceUpdateValidation(BaseModel):
-    source_name: str = Field("dataIMM", max_length=50, description="Name of the source")
-    file_name: str = Field("logIMM.txt", max_length=255, description="File name associated with the source")
+    source_name: str | None = Field(None, max_length=50, description="Name of the source")
+    file_name: str | None = Field(None, max_length=255, description="File name associated with the source")
     comment: str | None = Field(None, max_length=500, description="Optional comment about the source")

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Body, Response
+from fastapi import APIRouter, Depends, Body
 from typing import List
 from app.dependencies import authenticate, get_valid_parameter, upload_file
 from app.schemas import DataSourceSchema
@@ -9,7 +9,7 @@ from app.controllers.data_sources import (
     get_noname_sources_controller,
     update_source_controller,
     upload_data_controller,
-
+    delete_data_by_source_controller
 )
 
 from app.validation import (
@@ -45,8 +45,7 @@ async def upload_data(
 
 
 @sources_router.patch("/{source_number}")
-async def update_source(response: Response,
-                        source_number: int = Depends(get_valid_parameter),
+async def update_source(source_number: int = Depends(get_valid_parameter),
                         data: SourceUpdateValidation = Body(...),
                         current_user: dict = Depends(authenticate)
                         ):
@@ -55,3 +54,10 @@ async def update_source(response: Response,
         source_number,
         data.model_dump()
     )
+
+
+@sources_router.delete("/{source_number}")
+async def delete_data_by_source(source_number: int = Depends(get_valid_parameter),
+                                current_user: dict = Depends(authenticate)
+                                ):
+    return await delete_data_by_source_controller(current_user, source_number)

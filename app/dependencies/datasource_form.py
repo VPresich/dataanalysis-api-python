@@ -5,8 +5,8 @@ from app.validation import DataSourceValidation
 
 async def datasource_form(
     source_number: int = Form(...),
-    source_name: Optional[str] = Form("dataIMM"),
-    file_name: Optional[str] = Form("logIMM.txt"),
+    source_name: Optional[str] = Form(None),
+    file_name: Optional[str] = Form(None),
     comment: Optional[str] | None = Form(None)
 ) -> DataSourceValidation:
     return DataSourceValidation(

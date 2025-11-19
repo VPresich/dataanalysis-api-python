@@ -2,7 +2,7 @@ from fastapi import Path
 from app.validation import SourceNumberValidation
 
 
-async def get_valid_parameter(
+async def valid_parameter(
     source_number: int = Path(..., description="Number of the source to update")
 ) -> int:
     """

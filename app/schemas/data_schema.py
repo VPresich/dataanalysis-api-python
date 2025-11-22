@@ -1,11 +1,11 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
 
 
 class DataSchema(BaseModel):
-    _id: int
+    id: UUID = Field(..., alias="_id")
     id_source: UUID
 
     CVpositive: Optional[str] = "None"
@@ -41,4 +41,7 @@ class DataSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={UUID: str}
+    )

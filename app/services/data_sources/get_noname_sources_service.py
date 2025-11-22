@@ -31,6 +31,6 @@ async def get_noname_sources_service():
             .order_by(DataSource.created_at.desc())
         )
         noname_sources = result.scalars().all()
-        result = [DataSourceSchema.model_validate(r) for r in noname_sources]
+        result = [DataSourceSchema.model_validate(r).model_dump(by_alias=True) for r in noname_sources]
 
         return result

@@ -35,6 +35,6 @@ async def noname_data_by_source_service(source_number: int) -> List[dict]:
             select(Data).where(Data.id_source == source._id)
         )
         records = data_result.scalars().all()
-        result = [DataSchema.model_validate(r).model_dump() for r in records]
+        result = [DataSchema.model_validate(r).model_dump(by_alias=True) for r in records]
 
         return result

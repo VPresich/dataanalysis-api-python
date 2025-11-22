@@ -23,9 +23,15 @@ def init_server(lifespan=None) -> FastAPI:
     app = FastAPI(title="Data Analysis API", lifespan=lifespan)
 
     # CORS middleware
+
+    origins = [
+        "http://localhost:5173",
+        "http://localhost:8000",
+    ]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Change to specific domains in production
+        allow_origins=origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

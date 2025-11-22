@@ -6,7 +6,6 @@ from app.controllers.data import (
     data_by_source_controller,
     filtered_data_by_source_controller,
     noname_data_by_source_controller
-
 )
 
 data_router = APIRouter()

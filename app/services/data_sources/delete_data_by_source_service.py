@@ -25,10 +25,8 @@ async def delete_data_by_source_service(*, user_id: str, source_number: int) -> 
         if not source:
             raise HTTPException(404, f"Source with number {source_number} not found")
 
-        # Convert to schema BEFORE deletion
-        deleted_source = DataSourceSchema.model_validate(source).model_dump()
+        deleted_source = DataSourceSchema.model_validate(source).model_dump(by_alias=True)
 
-        # Delete source (cascade will remove related Data)
         await session.delete(source)
         await session.commit()
 

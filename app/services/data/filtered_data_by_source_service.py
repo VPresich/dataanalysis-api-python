@@ -48,6 +48,6 @@ async def filtered_data_by_source_service(
         data_result = await session.execute(query)
         records = data_result.scalars().all()
 
-        result = [DataSchema.model_validate(r).model_dump() for r in records]
+        result = [DataSchema.model_validate(r).model_dump(by_alias=True) for r in records]
 
         return result

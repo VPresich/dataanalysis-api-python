@@ -7,7 +7,11 @@ from app.database import Base
 class Data(Base):
     __tablename__ = "data"
 
-    _id = Column(Integer, primary_key=True, index=True, name="_id")
+    _id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid()
+    )
     id_source = Column(
         UUID(as_uuid=True),
         ForeignKey("data_sources._id", ondelete="CASCADE"),

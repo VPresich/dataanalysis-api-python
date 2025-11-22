@@ -25,6 +25,6 @@ async def get_all_sources_service(user_id: str):
 
         result = await session.execute(query)
         records = result.scalars().all()
-        result = [DataSourceSchema.model_validate(r) for r in records]
+        result = [DataSourceSchema.model_validate(r).model_dump(by_alias=True) for r in records]
 
         return result

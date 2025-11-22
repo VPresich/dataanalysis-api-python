@@ -45,7 +45,7 @@ async def update_source_service(
         await session.commit()
         await session.refresh(source)
 
-        updated_source = DataSourceSchema.model_validate(source).model_dump()
+        updated_source = DataSourceSchema.model_validate(source).model_dump(by_alias=True)
 
         return {
             "message": f"Source {source_number} has been successfully updated.",

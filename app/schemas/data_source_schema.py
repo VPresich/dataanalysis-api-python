@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
 from datetime import datetime
 
 
 class DataSourceSchema(BaseModel):
-    _id: UUID
+    id: UUID = Field(..., alias="_id")
     id_user: UUID
     source_number: int
     source_name: str

@@ -65,5 +65,5 @@ async def upload_data_service(
 
         return {
             **result_parser,
-            "dataSource": DataSourceSchema.model_validate(data_source).model_dump(by_alias=True),
+            "source": DataSourceSchema.model_validate(data_source).model_dump(by_alias=True),
         }

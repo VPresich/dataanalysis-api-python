@@ -32,5 +32,5 @@ async def delete_data_by_source_service(*, user_id: str, source_number: int) -> 
 
         return {
             "message": f"Source {source_number} and all related data have been successfully deleted.",
-            "deletedSource": deleted_source
+            "source": deleted_source
         }

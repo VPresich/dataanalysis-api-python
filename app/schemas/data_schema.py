@@ -38,10 +38,11 @@ class DataSchema(BaseModel):
     TrackNum: int = 0
     Time: float = 0.0
 
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime = Field(..., alias="createdAt")
+    updated_at: datetime = Field(..., alias="updatedAt")
 
     model_config = ConfigDict(
         from_attributes=True,
+        populate_by_name=True,
         json_encoders={UUID: str}
     )

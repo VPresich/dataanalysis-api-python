@@ -10,7 +10,7 @@ class DataSourceSchema(BaseModel):
     source_name: str
     file_name: str
     comment: str | None = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime = Field(..., alias="createdAt")
+    updated_at: datetime = Field(..., alias="updatedAt")
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)

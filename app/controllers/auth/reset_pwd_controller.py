@@ -15,7 +15,6 @@ async def reset_pwd_controller(request_data: dict):
     return JSONResponse(
         status_code=200,
         content={
-            "message": "Password changed successfully!",
-            "data": {}
+            "message": "Password changed successfully!"
         }
     )

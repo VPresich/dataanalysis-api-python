@@ -49,5 +49,5 @@ async def update_source_service(
 
         return {
             "message": f"Source {source_number} has been successfully updated.",
-            "updatedSource": updated_source,
+            "source": updated_source,
         }

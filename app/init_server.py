@@ -24,10 +24,13 @@ def init_server(lifespan=None) -> FastAPI:
 
     # CORS middleware
 
-    origins = [
-        "http://localhost:5173",
-        "http://localhost:8000",
-    ]
+    origins_env = os.getenv("ALLOWED_ORIGINS", "")
+    origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+
+    # origins = [
+    #     "http://localhost:5173",
+    #     "http://localhost:8000",
+    # ]
 
     app.add_middleware(
         CORSMiddleware,

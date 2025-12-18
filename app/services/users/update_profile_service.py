@@ -22,9 +22,9 @@ async def update_profile_service(
     avatar_url = None
     if file_path is not None:
         if USE_CLOUDINARY:
-            avatar_url = await save_file_to_cloudinary(file_path, "avatars", AVATAR_SIZE)
+            avatar_url = await save_file_to_cloudinary(file_path, id, "avatars", AVATAR_SIZE)
         else:
-            avatar_url = await save_file_to_uploaddir(file_path)
+            avatar_url = await save_file_to_uploaddir(file_path, id)
 
     async with get_db_session() as session:
         result = await session.execute(

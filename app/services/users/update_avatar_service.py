@@ -20,9 +20,9 @@ async def update_avatar_service(user_id: str, source_path: str) -> str:
     """
 
     if USE_CLOUDINARY:
-        avatar_url = await save_file_to_cloudinary(source_path, "avatars", AVATAR_SIZE)
+        avatar_url = await save_file_to_cloudinary(source_path, user_id, "avatars", AVATAR_SIZE)
     else:
-        avatar_url = await save_file_to_uploaddir(source_path)
+        avatar_url = await save_file_to_uploaddir(source_path, user_id)
 
     # Update user in database
     async with get_db_session() as session:

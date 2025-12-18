@@ -1,13 +1,12 @@
 import asyncio
 import os
 import aiofiles
-from pathlib import Path
 import cloudinary
 import cloudinary.uploader
 from app.config.cloudinary import CLOUD_NAME, API_KEY, API_SECRET
 
 
-async def save_file_to_cloudinary(source_path: str, folder: str, size: int) -> str:
+async def save_file_to_cloudinary(source_path: str, user_id: str, folder: str, size: int) -> str:
     """
     Uploads a file to Cloudinary and returns the secure URL of the uploaded image.
 
@@ -27,8 +26,9 @@ async def save_file_to_cloudinary(source_path: str, folder: str, size: int) -> s
     try:
         result = cloudinary.uploader.upload(
             source_path,
-            public_id=Path(source_path).name,
+            public_id=f"{user_id}-avatar",
             folder=folder,
+            overwrite=True,
             allowed_formats=["jpg", "jpeg", "png"],
             transformation=[{"width": size, "height": size, "crop": "limit"}],
         )

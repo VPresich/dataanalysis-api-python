@@ -9,7 +9,8 @@ from app.controllers.data_sources import (
     get_noname_sources_controller,
     update_source_controller,
     upload_data_controller,
-    delete_data_by_source_controller
+    delete_data_by_source_controller,
+    delete_all_sources_controller,
 )
 
 from app.validation import (
@@ -42,6 +43,12 @@ async def upload_data(
         data.model_dump(),
         file_path
     )
+
+
+@sources_router.delete("/")
+async def delete_all_sources(current_user: dict = Depends(authenticate)
+                             ):
+    return await delete_all_sources_controller(current_user)
 
 
 @sources_router.patch("/{source_number}")

@@ -137,3 +137,11 @@ poetry install
 
 2. Run the project:
 poetry run uvicorn app.main:app --reload
+
+
+Посмотреть, заняты ли порты
+netstat -aon | findstr :[PORT]
+netstat -aon | findstr :5173
+Освободить порт
+(taskkill /PID [PORT] /F)
+(taskkill /PID 5173 /F)

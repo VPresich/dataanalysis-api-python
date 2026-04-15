@@ -1,8 +1,8 @@
-from fastapi import HTTPException
-from sqlalchemy import select, delete
-from uuid import UUID
-from app.database import get_db_session
 from app.models.data_source import DataSource
+from app.database import get_db_session
+from uuid import UUID
+from sqlalchemy import select, delete
+from fastapi import HTTPException
 
 
 async def delete_all_sources_service(*, user_id: str) -> dict:

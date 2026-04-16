@@ -37,18 +37,17 @@ This project is part of a larger web system for data collection, processing, and
 
 The project follows a layered architecture:
 
-
 app/
-├── controllers/ # API request handlers
-├── services/ # business logic layer
-├── models/ # database models (ORM)
-├── routers/ # API routing
-├── schemas/ # data validation (Pydantic)
-├── validation/ # input validation rules
-├── dependencies/ # auth & DI
-├── utils/ # helper functions
-├── database.py # DB connection
-├── main.py # application entry point
+- controllers/ # API request handlers
+- services/ # business logic layer
+- models/ # database models (ORM)
+- routers/ # API routing
+- schemas/ # data validation (Pydantic)
+- validation/ # input validation rules
+- dependencies/ # auth & DI
+- utils/ # helper functions
+- database.py # DB connection
+- main.py # application entry point
 
 
 ## Architecture Flow

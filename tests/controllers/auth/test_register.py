@@ -1,3 +1,5 @@
+from app.main import init_server
+from httpx import AsyncClient, ASGITransport
 import pytest
 import uuid
 
@@ -58,3 +60,27 @@ def test_register_verification_off(fake_db_client, monkeypatch):
     assert data["user"]["email"] == user["email"]
     assert "theme" in data["user"]
     assert "avatarURL" in data["user"]
+
+
+@pytest.mark.asyncio
+async def test_register_creates_user_in_real_db():
+    app = init_server(lifespan=None)
+    email = f"real_{uuid.uuid4().hex[:6]}@test.com"
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/auth/register", json={
+            "name": "Test User",
+            "email": email,
+            "password": "password123"
+        })
+
+    assert response.status_code == 201
+
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(User).where(User.email == email)
+        )
+        user = result.scalar_one_or_none()
+
+    assert user is not None
+    assert user.email == email

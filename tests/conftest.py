@@ -52,6 +52,15 @@ def real_db_client():
 
 
 @pytest.fixture
+async def async_client():
+    from app.main import init_server
+    app = init_server(lifespan=None)
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+
+@pytest.fixture
 async def db_session():
     async with AsyncSessionLocal() as session:
         yield session

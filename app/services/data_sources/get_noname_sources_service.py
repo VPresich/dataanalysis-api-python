@@ -1,11 +1,11 @@
 from sqlalchemy import select
-from app.database import get_db_session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User
 from app.models import DataSource
 from app.schemas import DataSourceSchema
 
 
-async def get_noname_sources_service():
+async def get_noname_sources_service(session: AsyncSession):
     """
     Retrieves sources that belong to the demo user ("noname user").
     Workflow:
@@ -18,19 +18,18 @@ async def get_noname_sources_service():
     - If the user exists but has no sources, an empty list is returned.
     :return: List[DataSourceSchema] — possibly empty.
     """
-    async with get_db_session() as session:
-        result = await session.execute(select(User).where(User.name == "noname user"))
-        noname_user = result.scalar_one_or_none()
+    result = await session.execute(select(User).where(User.name == "noname user"))
+    noname_user = result.scalar_one_or_none()
 
-        if not noname_user:
-            return []
+    if not noname_user:
+        return []
 
-        result = await session.execute(
-            select(DataSource)
-            .where(DataSource.id_user == noname_user._id)
-            .order_by(DataSource.created_at.desc())
-        )
-        noname_sources = result.scalars().all()
-        result = [DataSourceSchema.model_validate(r).model_dump(by_alias=True) for r in noname_sources]
+    result = await session.execute(
+        select(DataSource)
+        .where(DataSource.id_user == noname_user._id)
+        .order_by(DataSource.created_at.desc())
+    )
+    noname_sources = result.scalars().all()
+    result = [DataSourceSchema.model_validate(r).model_dump(by_alias=True) for r in noname_sources]
 
-        return result
+    return result

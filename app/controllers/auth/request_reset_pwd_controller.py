@@ -1,11 +1,12 @@
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from app.utils.ctrl_wrapper import ctrl_wrapper
 from app.services.auth import request_reset_pwd_service
 
 
 @ctrl_wrapper
-async def request_reset_pwd_controller(data: dict):
+async def request_reset_pwd_controller(data: dict, db: AsyncSession):
     """
     Public endpoint to request reset password.
     This route does not require authentication.
@@ -14,7 +15,7 @@ async def request_reset_pwd_controller(data: dict):
     if not email:
         raise HTTPException(status_code=400, detail="Email is required")
 
-    await request_reset_pwd_service(email)
+    await request_reset_pwd_service(email, db)
 
     return JSONResponse(
         status_code=200,

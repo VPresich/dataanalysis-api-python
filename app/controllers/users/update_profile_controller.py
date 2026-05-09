@@ -1,10 +1,11 @@
 from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.ctrl_wrapper import ctrl_wrapper
 from app.services.users import update_profile_service
 
 
 @ctrl_wrapper
-async def update_profile_controller(user: dict, data: dict, file_path: str):
+async def update_profile_controller(user: dict, data: dict, file_path: str, db: AsyncSession):
     """
     Controller to update user's information.
     """
@@ -16,7 +17,7 @@ async def update_profile_controller(user: dict, data: dict, file_path: str):
     if not any([name, password, theme, file_path]):
         return JSONResponse(status_code=200, content=user)
 
-    updated_user = await update_profile_service(user_id, name, password, theme, file_path)
+    updated_user = await update_profile_service(user_id, db, name, password, theme, file_path)
 
     return JSONResponse(
         status_code=200,

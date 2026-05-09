@@ -1,4 +1,5 @@
 from fastapi import Request, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import RedirectResponse
 from app.services.auth import get_google_tokens, get_google_user_info, google_login_service
 from app.utils.ctrl_wrapper import ctrl_wrapper
@@ -6,7 +7,7 @@ from app.config.urls import BACKEND_BASE_URL, FRONTEND_BASE_URL
 
 
 @ctrl_wrapper
-async def google_redirect_controller(request: Request):
+async def google_redirect_controller(request: Request, db: AsyncSession):
     """
     Handles redirect from Google OAuth, retrieves tokens and user profile,
     passes them to the service, and redirects to frontend.
@@ -34,7 +35,7 @@ async def google_redirect_controller(request: Request):
 
         # Pass data to service
         data_to_service = {"userinfo": userinfo, "tokens": tokens}
-        jwt_token = await google_login_service(data_to_service)
+        jwt_token = await google_login_service(data_to_service, db)
 
         # Successful redirect with JWT
         return RedirectResponse(f"{FRONTEND_BASE_URL}?token={jwt_token}")

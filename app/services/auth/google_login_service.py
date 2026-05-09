@@ -1,14 +1,14 @@
 import secrets
 import bcrypt
 from app.models import User, ThemeEnum
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database import get_db_session
 from app.utils import generate_jwt
 from fastapi import HTTPException
 from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
 
 
-async def google_login_service(data: dict) -> str:
+async def google_login_service(data: dict, session: AsyncSession) -> str:
     """
     Processes Google login data:
     - Saves or updates user in DB
@@ -22,45 +22,44 @@ async def google_login_service(data: dict) -> str:
     if not email:
         raise HTTPException(status_code=400, detail="Email is required")
 
-    async with get_db_session() as session:
-        result = await session.execute(select(User).where(User.google_id == userinfo.get("id")))
+    result = await session.execute(select(User).where(User.google_id == userinfo.get("id")))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        # Check by email
+        result = await session.execute(select(User).where(User.email == email))
         user = result.scalar_one_or_none()
 
-        if not user:
-            # Check by email
-            result = await session.execute(select(User).where(User.email == email))
-            user = result.scalar_one_or_none()
-
-            if user:
-                # Link Google ID if not linked
-                if not user.google_id:
-                    user.google_id = userinfo.get("id")
-                    if not user.verify:
-                        user.verify = True
-                        user.verification_token = None
-                    await session.commit()
-            else:
-                # Create new user
-                random_password = secrets.token_urlsafe(16)
-                hashed_password = bcrypt.hashpw(random_password.encode(), bcrypt.gensalt()).decode()
-
-                user = User(
-                    name=userinfo.get("name", ""),
-                    email=email,
-                    password=hashed_password,
-                    google_id=userinfo.get("id"),
-                    avatar_url=PATH_DEF_AVATAR,
-                    theme=ThemeEnum(DEF_THEME),
-                    verification_token=None,
-                    verify=True,
-                )
-                session.add(user)
+        if user:
+            # Link Google ID if not linked
+            if not user.google_id:
+                user.google_id = userinfo.get("id")
+                if not user.verify:
+                    user.verify = True
+                    user.verification_token = None
                 await session.commit()
-                await session.refresh(user)
+        else:
+            # Create new user
+            random_password = secrets.token_urlsafe(16)
+            hashed_password = bcrypt.hashpw(random_password.encode(), bcrypt.gensalt()).decode()
 
-        # Generate and assign JWT token
-        jwt_token = generate_jwt(str(user._id))
-        user.token = jwt_token
-        await session.commit()
+            user = User(
+                name=userinfo.get("name", ""),
+                email=email,
+                password=hashed_password,
+                google_id=userinfo.get("id"),
+                avatar_url=PATH_DEF_AVATAR,
+                theme=ThemeEnum(DEF_THEME),
+                verification_token=None,
+                verify=True,
+            )
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
 
-        return jwt_token
+    # Generate and assign JWT token
+    jwt_token = generate_jwt(str(user._id))
+    user.token = jwt_token
+    await session.commit()
+
+    return jwt_token

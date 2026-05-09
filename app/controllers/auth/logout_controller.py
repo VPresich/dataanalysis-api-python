@@ -1,11 +1,12 @@
 from fastapi import Response
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from app.utils.ctrl_wrapper import ctrl_wrapper
 from app.services.auth import logout_service
 
 
 @ctrl_wrapper
-async def logout_controller(user: dict):
+async def logout_controller(user: dict, db: AsyncSession):
     """
     Logout controller.
 
@@ -18,5 +19,5 @@ async def logout_controller(user: dict):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    await logout_service(user_id=user["id"])
+    await logout_service(user_id=user["id"], session=db)
     return Response(status_code=204)

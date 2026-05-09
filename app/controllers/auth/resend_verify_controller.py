@@ -1,11 +1,12 @@
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from app.utils.ctrl_wrapper import ctrl_wrapper
 from app.services.auth import resend_verify_service
 
 
 @ctrl_wrapper
-async def resend_verify_controller(data: dict):
+async def resend_verify_controller(data: dict, db: AsyncSession):
     """
     Public endpoint to resend a verification email.
     This route does not require authentication.
@@ -14,7 +15,7 @@ async def resend_verify_controller(data: dict):
     if not email:
         raise HTTPException(status_code=400, detail="Email is required")
 
-    await resend_verify_service(email)
+    await resend_verify_service(email, db)
 
     return JSONResponse(
         status_code=200,

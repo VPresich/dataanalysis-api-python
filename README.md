@@ -109,3 +109,8 @@ This is a research / educational backend project
 Designed for scalable web-service architecture
 Works together with a React frontend
 Uses modern async Python stack
+
+
+Tests:
+poetry run pytest
+poetry run pytest -v

@@ -55,15 +55,14 @@ async def init_db(retries: int = 5, delay: int = 3) -> None:
 
 # Provides an async context manager for database sessions
 # Allows using "async with" to open and automatically close the session
-
 @asynccontextmanager
+async def get_db_session_ctx() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
+        yield session
+
+
+# For FastAPI (Depends)
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Provides a transactional scope around a series of operations.
-    Usage:
-        async with get_db_session() as session:
-            ...
-    """
     async with AsyncSessionLocal() as session:
         try:
             yield session

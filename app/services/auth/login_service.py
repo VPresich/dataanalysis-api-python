@@ -1,13 +1,13 @@
 import bcrypt
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database import get_db_session
 from app.models import User
 from app.utils import generate_jwt
 from app.config.flags import REQUIRE_EMAIL_VERIFICATION
 
 
-async def login_service(request_data: dict):
+async def login_service(request_data: dict, session: AsyncSession):
     """
     User login service.
 
@@ -22,32 +22,31 @@ async def login_service(request_data: dict):
     email = request_data.get("email", "").lower()
     password = request_data.get("password")
 
-    async with get_db_session() as session:
-        result = await session.execute(select(User).where(User.email == email))
-        user = result.scalar_one_or_none()
+    result = await session.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
 
-        if not user:
-            raise HTTPException(status_code=401, detail="Email or password is wrong")
+    if not user:
+        raise HTTPException(status_code=401, detail="Email or password is wrong")
 
-        if REQUIRE_EMAIL_VERIFICATION and not user.verify:
-            raise HTTPException(status_code=403, detail="Please verify your email before logging in.")
+    if REQUIRE_EMAIL_VERIFICATION and not user.verify:
+        raise HTTPException(status_code=403, detail="Please verify your email before logging in.")
 
-        if not bcrypt.checkpw(password.encode(), user.password.encode()):
-            raise HTTPException(status_code=401, detail="Email or password is wrong")
+    if not bcrypt.checkpw(password.encode(), user.password.encode()):
+        raise HTTPException(status_code=401, detail="Email or password is wrong")
 
-        # Generate JWT token
-        user_token = generate_jwt(str(user._id))
+    # Generate JWT token
+    user_token = generate_jwt(str(user._id))
 
-        # Save token in user table
-        user.token = user_token
-        await session.commit()
+    # Save token in user table
+    user.token = user_token
+    await session.commit()
 
-        return {
-            "token": user_token,
-            "user": {
-                "name": user.name,
-                "email": user.email,
-                "avatarURL": user.avatar_url,
-                "theme": user.theme.name,
-            },
-        }
+    return {
+        "token": user_token,
+        "user": {
+            "name": user.name,
+            "email": user.email,
+            "avatarURL": user.avatar_url,
+            "theme": user.theme.name,
+        },
+    }

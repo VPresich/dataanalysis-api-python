@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.ctrl_wrapper import ctrl_wrapper
 from app.services.data_sources import upload_data_service
 from fastapi.responses import JSONResponse
@@ -6,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 
 
 @ctrl_wrapper
-async def upload_data_controller(user: dict, data: dict, file_path: str):
+async def upload_data_controller(user: dict, data: dict, file_path: str, db: AsyncSession):
     """
     Upload CSV file and create a new data source.
     """
@@ -22,7 +23,8 @@ async def upload_data_controller(user: dict, data: dict, file_path: str):
         source_name=data.get("source_name"),
         file_name=data.get("file_name"),
         comment=data.get("comment"),
-        file_path=file_path
+        file_path=file_path,
+        session=db
     )
 
     return JSONResponse(

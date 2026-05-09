@@ -2,7 +2,7 @@ import uuid
 import bcrypt
 from fastapi import HTTPException
 from sqlalchemy import select
-from app.database import get_db_session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User, ThemeEnum
 from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
 from app.utils import generate_jwt
@@ -11,7 +11,7 @@ from app.config.flags import REQUIRE_EMAIL_VERIFICATION
 from app.config.urls import BACKEND_BASE_URL
 
 
-async def register_service(data: dict):
+async def register_service(data: dict, session: AsyncSession):
     """
     User registration service.
 
@@ -28,62 +28,60 @@ async def register_service(data: dict):
     email = data.get("email", "").lower()
     password = data.get("password")
 
-    async with get_db_session() as session:
+    # Check if email is already registered
+    result = await session.execute(select(User).where(User.email == email))
+    existing_user = result.scalar_one_or_none()
+    if existing_user:
+        raise HTTPException(status_code=409, detail="Email is already in use. Please log in instead.")
 
-        # Check if email is already registered
-        result = await session.execute(select(User).where(User.email == email))
-        existing_user = result.scalar_one_or_none()
-        if existing_user:
-            raise HTTPException(status_code=409, detail="Email is already in use. Please log in instead.")
+    # Hash the password
+    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-        # Hash the password
-        hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    verification_token = str(uuid.uuid4()) if REQUIRE_EMAIL_VERIFICATION else None
+    verify_status = not REQUIRE_EMAIL_VERIFICATION
 
-        verification_token = str(uuid.uuid4()) if REQUIRE_EMAIL_VERIFICATION else None
-        verify_status = not REQUIRE_EMAIL_VERIFICATION
+    new_user = User(
+        name=name,
+        email=email,
+        password=hashed_password,
+        avatar_url=PATH_DEF_AVATAR,
+        theme=ThemeEnum(DEF_THEME),
+        verification_token=verification_token,
+        verify=verify_status,
+    )
 
-        new_user = User(
-            name=name,
-            email=email,
-            password=hashed_password,
-            avatar_url=PATH_DEF_AVATAR,
-            theme=ThemeEnum(DEF_THEME),
-            verification_token=verification_token,
-            verify=verify_status,
-        )
+    session.add(new_user)
+    await session.commit()
+    await session.refresh(new_user)
 
-        session.add(new_user)
-        await session.commit()
-        await session.refresh(new_user)
+    # Optional: send verification email
+    if REQUIRE_EMAIL_VERIFICATION:
+        email_sent = False
+        try:
+            redirect = f"{BACKEND_BASE_URL}/auth/verify/{verification_token}"
+            await send_token(email.lower(), "Verification email", redirect, "verification_email.html", session)
+            email_sent = True
+        except Exception as err:
+            print(f"Failed to send verification email: {err}")
 
-        # Optional: send verification email
-        if REQUIRE_EMAIL_VERIFICATION:
-            email_sent = False
-            try:
-                redirect = f"{BACKEND_BASE_URL}/auth/verify/{verification_token}"
-                await send_token(email.lower(), "Verification email", redirect, "verification_email.html")
-                email_sent = True
-            except Exception as err:
-                print(f"Failed to send verification email: {err}")
+        result = {
+            "verifyRequired": True,
+            "user": {
+                "name": new_user.name,
+                "email": new_user.email,
+            },
+            "message": (
+                "Verification email sent. Please check your inbox."
+                if email_sent
+                else "Verification email could not be sent. You may need to verify your email manually."
+            ),
+        }
+        return result
 
-            result = {
-                "verifyRequired": True,
-                "user": {
-                    "name": new_user.name,
-                    "email": new_user.email,
-                },
-                "message": (
-                    "Verification email sent. Please check your inbox."
-                    if email_sent
-                    else "Verification email could not be sent. You may need to verify your email manually."
-                ),
-            }
-            return result
-
-        # Generate JWT token
-        user_token = generate_jwt(str(new_user._id))
-        new_user.token = user_token
-        await session.commit()
+    # Generate JWT token
+    user_token = generate_jwt(str(new_user._id))
+    new_user.token = user_token
+    await session.commit()
 
     # Prepare response for frontend
     return {

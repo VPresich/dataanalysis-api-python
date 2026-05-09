@@ -1,10 +1,10 @@
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models import User
-from app.database import get_db_session
 
 
-async def verify_email_service(verification_token: str):
+async def verify_email_service(verification_token: str, session: AsyncSession):
     """
     Service to verify a user's email using a verification token.
 
@@ -15,19 +15,19 @@ async def verify_email_service(verification_token: str):
       4. Set user.verify = True and clear verification_token.
       5. Commit changes and return user.
     """
-    async with get_db_session() as session:
-        stmt = select(User).where(User.verification_token == verification_token)
-        result = await session.execute(stmt)
-        user = result.scalar_one_or_none()
 
-        if not user:
-            raise HTTPException(status_code=404, detail="Invalid or expired verification token")
+    stmt = select(User).where(User.verification_token == verification_token)
+    result = await session.execute(stmt)
+    user = result.scalar_one_or_none()
 
-        if user.verify:
-            raise HTTPException(status_code=400, detail="User already verified")
+    if not user:
+        raise HTTPException(status_code=404, detail="Invalid or expired verification token")
 
-        # Update user
-        user.verify = True
-        user.verification_token = None
-        await session.commit()
-        return
+    if user.verify:
+        raise HTTPException(status_code=400, detail="User already verified")
+
+    # Update user
+    user.verify = True
+    user.verification_token = None
+    await session.commit()
+    return

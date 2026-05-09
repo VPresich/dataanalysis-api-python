@@ -25,6 +25,9 @@ async def send_mail(to: str, subject: str, html: str):
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()  # raise HTTPError if status >= 400
+            print(response.status_code)
+            print(response.text)
+            response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as err:
         # API returned error status code

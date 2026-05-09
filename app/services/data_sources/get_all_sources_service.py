@@ -1,11 +1,11 @@
 from uuid import UUID
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database import get_db_session
 from app.models import DataSource
 from app.schemas import DataSourceSchema
 
 
-async def get_all_sources_service(user_id: str):
+async def get_all_sources_service(user_id: str, session: AsyncSession):
     """
     Retrieves all data sources that belong to a specific user.
     1. Converts the provided user_id (string) to a UUID.
@@ -15,16 +15,14 @@ async def get_all_sources_service(user_id: str):
     :param user_id: User ID as a string UUID.
     :return: List of DataSourceSchema objects.
     """
-    async with get_db_session() as session:
+    query = (
+        select(DataSource)
+        .where(DataSource.id_user == UUID(user_id))
+        .order_by(DataSource.created_at.desc())
+    )
 
-        query = (
-            select(DataSource)
-            .where(DataSource.id_user == UUID(user_id))
-            .order_by(DataSource.created_at.desc())
-        )
+    result = await session.execute(query)
+    records = result.scalars().all()
+    result = [DataSourceSchema.model_validate(r).model_dump(by_alias=True) for r in records]
 
-        result = await session.execute(query)
-        records = result.scalars().all()
-        result = [DataSourceSchema.model_validate(r).model_dump(by_alias=True) for r in records]
-
-        return result
+    return result

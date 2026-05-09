@@ -1,13 +1,14 @@
 from uuid import UUID
 import jwt
-from fastapi import Header, HTTPException
-from sqlalchemy import select
+from fastapi import Header, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db_session
+from sqlalchemy import select
 from app.models import User
 from app.config.jwt import JWT_SECRET
 
 
-async def authenticate(authorization: str = Header(None)):
+async def authenticate(authorization: str = Header(None), session: AsyncSession = Depends(get_db_session)):
     """
     Middleware-style dependency to authenticate the user via JWT.
     Steps:
@@ -32,22 +33,21 @@ async def authenticate(authorization: str = Header(None)):
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token payload")
 
-        async with get_db_session() as session:
-            result = await session.execute(
-                select(User).where(User._id == UUID(user_id))
-            )
-            user = result.scalar_one_or_none()
-            if not user or user.token != token:
-                raise HTTPException(status_code=401, detail="Token mismatch")
+        result = await session.execute(
+            select(User).where(User._id == UUID(user_id))
+        )
+        user = result.scalar_one_or_none()
+        if not user or user.token != token:
+            raise HTTPException(status_code=401, detail="Token mismatch")
 
-            # Return user info for controller usage
-            return {
-                "id": str(user._id),
-                "name": user.name,
-                "email": user.email,
-                "avatarUrl": user.avatar_url,
-                "theme": user.theme.name,
-            }
+        # Return user info for controller usage
+        return {
+            "id": str(user._id),
+            "name": user.name,
+            "email": user.email,
+            "avatarUrl": user.avatar_url,
+            "theme": user.theme.name,
+        }
 
     except jwt.ExpiredSignatureError:
         # Specific error for expired token

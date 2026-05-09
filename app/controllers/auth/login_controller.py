@@ -1,10 +1,11 @@
 from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.auth import login_service
 from app.utils.ctrl_wrapper import ctrl_wrapper
 
 
 @ctrl_wrapper
-async def login_controller(request_data: dict):
+async def login_controller(request_data: dict, db: AsyncSession):
     """
     User login controller.
     Returns JSON containing the authentication token and user data.
@@ -14,5 +15,5 @@ async def login_controller(request_data: dict):
       2. Receive token and user info from the service.
       3. Return a JSONResponse with status code 200.
     """
-    result = await login_service(request_data)
+    result = await login_service(request_data, db)
     return JSONResponse(status_code=200, content=result)

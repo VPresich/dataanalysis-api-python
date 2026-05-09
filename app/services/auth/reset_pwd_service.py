@@ -1,13 +1,13 @@
 import bcrypt
 import jwt
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from app.database import get_db_session
 from app.models import User
 from app.config.jwt import JWT_SECRET
 
 
-async def reset_pwd_service(password: str, token: str):
+async def reset_pwd_service(password: str, token: str, session: AsyncSession):
     """
     Resets user password if the provided JWT reset token is valid and not expired.
     Token must contain the user's ID and be signed with the server secret.
@@ -24,20 +24,19 @@ async def reset_pwd_service(password: str, token: str):
     except jwt.InvalidTokenError as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
 
-    async with get_db_session() as session:
-        result = await session.execute(
-            select(User).where(User._id == user_id, User.email == email)
-        )
-        user = result.scalar_one_or_none()
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+    result = await session.execute(
+        select(User).where(User._id == user_id, User.email == email)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
-        # Hash the password
-        hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    # Hash the password
+    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-        await session.execute(
-            update(User)
-            .where(User._id == user._id)
-            .values(password=hashed_password)
-        )
-        await session.commit()
+    await session.execute(
+        update(User)
+        .where(User._id == user._id)
+        .values(password=hashed_password)
+    )
+    await session.commit()

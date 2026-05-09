@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, Body
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import get_db_session
 from typing import List
 from app.dependencies import authenticate, valid_parameter, upload_file
 from app.schemas import DataSourceSchema
@@ -23,48 +25,53 @@ sources_router = APIRouter()
 
 
 @sources_router.get("/", response_model=List[DataSourceSchema])
-async def get_sources(current_user: dict = Depends(authenticate)):
-    return await get_all_sources_controller(current_user)
+async def get_sources(current_user: dict = Depends(authenticate),
+                      db: AsyncSession = Depends(get_db_session)):
+    return await get_all_sources_controller(current_user, db=db)
 
 
 @sources_router.get("/noname/sources", response_model=List[DataSourceSchema])
-async def get_noname_sources():
-    return await get_noname_sources_controller()
+async def get_noname_sources(db: AsyncSession = Depends(get_db_session)):
+    return await get_noname_sources_controller(db=db)
 
 
 @sources_router.post("/")
 async def upload_data(
     data: DataSourceValidation = Depends(datasource_form),
     current_user: dict = Depends(authenticate),
-    file_path: str = Depends(upload_file("datafile"))
+    file_path: str = Depends(upload_file("datafile")),
+    db: AsyncSession = Depends(get_db_session)
 ):
     return await upload_data_controller(
         current_user,
         data.model_dump(),
-        file_path
+        file_path,
+        db=db
     )
 
 
 @sources_router.delete("/")
-async def delete_all_sources(current_user: dict = Depends(authenticate)
-                             ):
-    return await delete_all_sources_controller(current_user)
+async def delete_all_sources(current_user: dict = Depends(authenticate),
+                             db: AsyncSession = Depends(get_db_session)):
+    return await delete_all_sources_controller(current_user, db=db)
 
 
 @sources_router.patch("/{source_number}")
 async def update_source(source_number: int = Depends(valid_parameter),
                         data: SourceUpdateValidation = Body(...),
-                        current_user: dict = Depends(authenticate)
+                        current_user: dict = Depends(authenticate),
+                        db: AsyncSession = Depends(get_db_session)
                         ):
     return await update_source_controller(
         current_user,
         source_number,
-        data.model_dump()
+        data.model_dump(),
+        db=db
     )
 
 
 @sources_router.delete("/{source_number}")
 async def delete_data_by_source(source_number: int = Depends(valid_parameter),
-                                current_user: dict = Depends(authenticate)
+                                current_user: dict = Depends(authenticate), db: AsyncSession = Depends(get_db_session)
                                 ):
-    return await delete_data_by_source_controller(current_user, source_number)
+    return await delete_data_by_source_controller(current_user, source_number, db=db)

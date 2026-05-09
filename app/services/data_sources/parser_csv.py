@@ -5,7 +5,6 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from app.models import Data
-from app.database import get_db_session
 
 # List of columns in the Data table that are of type String
 STRING_FIELDS = [
@@ -49,7 +48,7 @@ def convert_value(key: str, value: str | None):
 async def parse_and_save_csv(
     file_path: str,
     data_source_id,
-    session: Optional[AsyncSession] = None,
+    session: AsyncSession,
 ) -> dict:
     """
     Parses a tab-separated CSV file and inserts the data into the database.
@@ -77,17 +76,12 @@ async def parse_and_save_csv(
         raise HTTPException(400, "File is empty or not properly tab-delimited.")
 
     # --- Database insert ---
-    async def _insert(sess: AsyncSession):
-        try:
-            await sess.execute(Data.__table__.insert(), results)
-        except SQLAlchemyError as e:
-            raise HTTPException(500, f"DB insert error: {e}")
-
-    if session:
-        await _insert(session)
-    else:
-        async with get_db_session() as new_session:
-            await _insert(new_session)
+    try:
+        await session.execute(Data.__table__.insert(), results)
+        await session.commit()
+    except SQLAlchemyError as e:
+        await session.rollback()
+        raise HTTPException(500, f"DB insert error: {e}")
 
     # --- File cleanup ---
     try:

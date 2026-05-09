@@ -1,10 +1,11 @@
 from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.ctrl_wrapper import ctrl_wrapper
 from app.services.users import update_info_service
 
 
 @ctrl_wrapper
-async def update_info_controller(user: dict, data: dict):
+async def update_info_controller(user: dict, data: dict, db: AsyncSession):
     """
     Controller to update user's information.
     """
@@ -12,7 +13,7 @@ async def update_info_controller(user: dict, data: dict):
     theme = data.get("theme")
     password = data.get("password")
 
-    updated_user = await update_info_service(user["id"], name, password, theme)
+    updated_user = await update_info_service(user["id"], name, password, theme, db)
 
     return JSONResponse(
         status_code=200,

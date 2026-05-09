@@ -7,7 +7,7 @@ from app.models import User, ThemeEnum
 from app.utils.constants import DEF_THEME, PATH_DEF_AVATAR
 from app.utils import generate_jwt
 from app.services.auth.send_token import send_token
-from app.config.flags import REQUIRE_EMAIL_VERIFICATION
+import app.config.flags as flags
 from app.config.urls import BACKEND_BASE_URL
 
 
@@ -37,8 +37,8 @@ async def register_service(data: dict, session: AsyncSession):
     # Hash the password
     hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    verification_token = str(uuid.uuid4()) if REQUIRE_EMAIL_VERIFICATION else None
-    verify_status = not REQUIRE_EMAIL_VERIFICATION
+    verification_token = str(uuid.uuid4()) if flags.REQUIRE_EMAIL_VERIFICATION else None
+    verify_status = not flags.REQUIRE_EMAIL_VERIFICATION
 
     new_user = User(
         name=name,
@@ -55,7 +55,7 @@ async def register_service(data: dict, session: AsyncSession):
     await session.refresh(new_user)
 
     # Optional: send verification email
-    if REQUIRE_EMAIL_VERIFICATION:
+    if flags.REQUIRE_EMAIL_VERIFICATION:
         email_sent = False
         try:
             redirect = f"{BACKEND_BASE_URL}/auth/verify/{verification_token}"

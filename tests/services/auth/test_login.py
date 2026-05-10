@@ -1,5 +1,5 @@
 import pytest
-from tests.services.auth.factories import create_user
+from tests.helpers.factories import create_user
 import app.config.flags as flags
 
 

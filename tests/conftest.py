@@ -1,5 +1,6 @@
 import pytest
 import bcrypt
+import uuid
 from app.models import User, ThemeEnum
 from app.database import get_db_session
 from fastapi.testclient import TestClient
@@ -108,6 +109,15 @@ async def db_session():
         finally:
             await session.rollback()
             await session.close()
+
+
+@pytest.fixture
+def register_payload():
+    return {
+        "name": "Test User",
+        "email": f"test_{uuid.uuid4().hex[:6]}@test.com",
+        "password": "password123"
+    }
 
 
 @pytest.fixture(autouse=True)

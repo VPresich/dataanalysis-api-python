@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models import User
 from app.utils import generate_jwt
-from app.config.flags import REQUIRE_EMAIL_VERIFICATION
+import app.config.flags as flags
 
 
 async def login_service(request_data: dict, session: AsyncSession):
@@ -28,7 +28,7 @@ async def login_service(request_data: dict, session: AsyncSession):
     if not user:
         raise HTTPException(status_code=401, detail="Email or password is wrong")
 
-    if REQUIRE_EMAIL_VERIFICATION and not user.verify:
+    if flags.REQUIRE_EMAIL_VERIFICATION and not user.verify:
         raise HTTPException(status_code=403, detail="Please verify your email before logging in.")
 
     if not bcrypt.checkpw(password.encode(), user.password.encode()):

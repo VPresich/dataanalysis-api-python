@@ -1,10 +1,18 @@
 import pytest
-
 from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
 from app.main import init_server
 from app.database import get_db_session, AsyncSessionLocal
 import asyncio
+import sys
+import os
+
+
+@pytest.fixture(autouse=True)
+async def cleanup_db_engine():
+    yield
+    from app.database import engine
+    await engine.dispose()
 
 
 async def override_get_db():
@@ -63,7 +71,11 @@ async def async_client():
 @pytest.fixture
 async def db_session():
     async with AsyncSessionLocal() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.rollback()
+            await session.close()
 
 
 @pytest.fixture(autouse=True)

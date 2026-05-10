@@ -27,4 +27,4 @@ async def request_reset_pwd_service(email: str, session: AsyncSession):
     reset_token = generate_jwt(user._id, expires_in=15 * 60, email=user.email)
     reset_link = f"{FRONTEND_BASE_URL}/password/reset/{reset_token}"
 
-    await send_token(user.email.lower(), "Reset your password", reset_link, "reset_password_email.html", session)
+    await send_token(user, user.email.lower(), "Reset your password", reset_link, "reset_password_email.html")

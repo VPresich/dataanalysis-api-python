@@ -1,10 +1,12 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import text
 from app.config.db import DATABASE_URL
+from sqlalchemy.pool import NullPool
 
 # Create declarative base for SQLAlchemy models
 Base = declarative_base()
@@ -15,6 +17,7 @@ engine = create_async_engine(
     echo=True,
     future=True,
 )
+
 
 # Create session factory
 AsyncSessionLocal = sessionmaker(

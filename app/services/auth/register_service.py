@@ -49,17 +49,15 @@ async def register_service(data: dict, session: AsyncSession):
         verification_token=verification_token,
         verify=verify_status,
     )
-
     session.add(new_user)
     await session.commit()
-    await session.refresh(new_user)
 
     # Optional: send verification email
     if flags.REQUIRE_EMAIL_VERIFICATION:
         email_sent = False
         try:
             redirect = f"{BACKEND_BASE_URL}/auth/verify/{verification_token}"
-            await send_token(email.lower(), "Verification email", redirect, "verification_email.html", session)
+            await send_token(new_user, email.lower(), "Verification email", redirect, "verification_email.html")
             email_sent = True
         except Exception as err:
             print(f"Failed to send verification email: {err}")

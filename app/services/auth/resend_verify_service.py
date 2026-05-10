@@ -28,4 +28,4 @@ async def resend_verify_service(email: str, session: AsyncSession):
 
     redirect = f"{BACKEND_BASE_URL}/auth/verify/{verification_token}"
 
-    return await send_token(email.lower(), "Verification email", redirect, "verification_email.html", session)
+    return await send_token(user, email.lower(), "Verification email", redirect, "verification_email.html")

@@ -1,23 +1,15 @@
 from jinja2 import Template
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models import User
 from app.utils import send_mail, get_template_path
 
 
-async def send_token(email: str, subject_email: str, redirect: str, template_name: str, session: AsyncSession):
+async def send_token(user: User, email: str, subject_email: str, redirect: str, template_name: str):
     """
     Send a verification email with a verification token via Brevo (using SQLAlchemy).
     The controller knows nothing about database sessions — the service manages them internally.
     """
-
-    result = await session.execute(select(User).where(User.email == email))
-
-    user = result.scalar_one_or_none()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
 
     # Check if the email template exists
     template_path = get_template_path(template_name)

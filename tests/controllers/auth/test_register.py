@@ -1,7 +1,9 @@
 import pytest
 from app.models import User
+from app.database import AsyncSessionLocal
 from sqlalchemy import select
 import app.config.flags as flags
+import asyncio
 
 
 def assert_user_in_db(user, register_payload):
@@ -22,7 +24,6 @@ def assert_user_in_responce(data, register_payload):
 
 def test_register_router(fake_db_client, register_payload):
     response = fake_db_client.post("/api/auth/register", json=register_payload)
-
     assert response.status_code == 201
 
 
@@ -91,10 +92,11 @@ async def test_register_creates_user_verification_on(async_client, db_session, r
     user = result.scalar_one_or_none()
     assert_user_in_db(user, register_payload)
     assert user.token is None
-    assert user.verify == False
+    assert not user.verify
     assert user.verification_token is not None
 
 
+# @pytest.mark.skip()
 @pytest.mark.asyncio
 async def test_register_creates_user_verification_off(async_client, db_session, register_payload, monkeypatch):
 
@@ -115,5 +117,18 @@ async def test_register_creates_user_verification_off(async_client, db_session, 
     user = result.scalar_one_or_none()
     assert_user_in_db(user, register_payload)
     assert user.token is not None
-    assert user.verify == True
+    assert user.verify
     assert user.verification_token is None
+
+
+# @pytest.mark.skip()
+@pytest.mark.asyncio
+async def test_register_duplicate_email(async_client, register_payload, db_session):
+
+    response = await async_client.post("/api/auth/register", json=register_payload)
+    assert response.status_code == 201
+
+    await db_session.close()
+
+    response_duplicate = await async_client.post("/api/auth/register", json=register_payload)
+    assert response_duplicate.status_code == 409

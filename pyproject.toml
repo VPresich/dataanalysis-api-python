@@ -5,9 +5,8 @@ description = ""
 authors = [
     {name = "VAleksandrovaPresich",email = "valya.alexandrova.presich@gmail.com"}
 ]
-
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4.0.0"
 dependencies = [
     "fastapi (>=0.119.0,<0.120.0)",
     "uvicorn (>=0.38.0,<0.39.0)",
@@ -22,7 +21,10 @@ dependencies = [
     "jinja2 (>=3.1.6,<4.0.0)",
     "cloudinary (>=1.44.1,<2.0.0)",
     "aiofiles (>=25.1.0,<26.0.0)",
-    "python-multipart (>=0.0.20,<0.0.21)"
+    "python-multipart (>=0.0.20,<0.0.21)",
+    "langchain (>=1.3.9,<2.0.0)",
+    "langchain-openai (>=1.3.2,<2.0.0)",
+    "langchain-core (>=1.4.7,<2.0.0)"
 ]
 
 [build-system]

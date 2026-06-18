@@ -104,11 +104,37 @@ async def async_client():
 @pytest.fixture
 async def db_session():
     async with AsyncSessionLocal() as session:
+        await session.begin_nested()
         try:
             yield session
         finally:
             await session.rollback()
             await session.close()
+
+
+# @pytest.fixture
+# async def async_client(db_session):
+#     """
+#     Asynchronous client fixture that forces FastAPI database dependencies
+#     to reuse the active test transaction session, ensuring automated cleanups.
+#     """
+#     from app.main import init_server
+#     app = init_server(lifespan=None)
+
+#     # Injects the current database test session into the FastAPI runtime context
+#     async def override_get_db_session():
+#         yield db_session
+
+#     # Establishes the core dependency link between test files and router layers
+#     from app.database import get_db_session
+#     app.dependency_overrides[get_db_session] = override_get_db_session
+
+#     transport = ASGITransport(app=app)
+#     async with AsyncClient(transport=transport, base_url="http://test") as client:
+#         yield client
+
+#     # Clears out runtime context overrides to prevent cross-test logic pollution
+#     app.dependency_overrides.clear()
 
 
 @pytest.fixture

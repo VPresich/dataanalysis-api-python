@@ -89,3 +89,8 @@ uploads/
 media/
 temp/
 tmp/
+
+# AI Test Debug Output
+# ────────────────────────────────
+captured_prompt_result.txt
+captured_user_prompt_result.txt

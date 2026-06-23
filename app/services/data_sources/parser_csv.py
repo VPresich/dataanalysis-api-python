@@ -77,9 +77,7 @@ async def parse_and_save_csv(
     # --- Database insert ---
     try:
         await session.execute(Data.__table__.insert(), results)
-        await session.commit()
     except SQLAlchemyError as e:
-        await session.rollback()
         raise HTTPException(500, f"DB insert error: {e}")
 
     # --- File cleanup ---

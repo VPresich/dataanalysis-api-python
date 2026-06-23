@@ -58,11 +58,10 @@ async def upload_data_service(
     # Parse CSV and save data
     try:
         result_parser = await parse_and_save_csv(file_path, data_source._id, session)
+        await session.commit()
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Error uploading CSV: {e}")
-
-    await session.commit()
 
     return {
         **result_parser,

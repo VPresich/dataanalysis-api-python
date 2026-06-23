@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, func
+from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, Index, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -48,3 +48,7 @@ class Data(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), name="updated_at")
 
     source = relationship("DataSource", back_populates="records")
+
+    __table_args__ = (
+        Index("ix_data_source_track", "id_source", "TrackNum"),
+    )

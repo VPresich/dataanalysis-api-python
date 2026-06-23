@@ -26,6 +26,6 @@ async def get_data(source_number: int = Depends(valid_parameter),
     return await data_by_source_controller(current_user, source_number, db=db)
 
 
-@data_router.get("/noname/data/{source_number}", response_model=List[DataSchema])
+@data_router.get("/noname/data/{source_number}")
 async def get_noneme_data(source_number: int = Depends(valid_parameter), db: AsyncSession = Depends(get_db_session)):
     return await noname_data_by_source_controller(source_number, db=db)
